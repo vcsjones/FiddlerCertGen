@@ -55,11 +55,18 @@ namespace VCSJones.FiddlerCertProvider4
                 else
                 {
                     var cert = _generator.GenerateCertificate(GetRootCertificate(), GetEEPrivateKey(), new X500DistinguishedName("CN=FIDDLER_EE_DO_NOT_TRUST,OU=vcsjones.com"), new[] { sHostname });
-                    LockCookie lockCookie = default(LockCookie);
+                    var lockCookie = default(LockCookie);
                     try
                     {
                         lockCookie = _rwl.UpgradeToWriterLock(LOCK_TIMEOUT);
-                        _certificateCache.Add(sHostname, cert);
+                        if (!_certificateCache.ContainsKey(sHostname))
+                        {
+                            _certificateCache.Add(sHostname, cert);
+                        }
+                        else
+                        {
+                            return _certificateCache[sHostname];
+                        }
                     }
                     finally
                     {
