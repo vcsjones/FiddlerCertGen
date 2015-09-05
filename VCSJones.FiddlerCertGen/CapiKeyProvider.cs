@@ -10,6 +10,8 @@ namespace VCSJones.FiddlerCertGen
     internal class CapiKeyProvider : KeyProviderBase
     {
         internal static CapiKeyProvider Instance { get; } = new CapiKeyProvider();
+        public override string Name { get; } = "CAPI";
+
 
         private static readonly string _providerName;
 

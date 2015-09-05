@@ -45,5 +45,10 @@ namespace VCSJones.FiddlerCertGen
         {
             return !Equals(left, right);
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

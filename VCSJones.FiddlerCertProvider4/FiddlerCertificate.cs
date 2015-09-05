@@ -9,14 +9,19 @@ namespace VCSJones.FiddlerCertProvider4
 {
     public class FiddlerCertificate : ICertificateProvider3
     {
+        // Begin configuration
+        private static readonly KeyProviderBase _keyProviderEngine = KeyProviders.CNG;
+        private static readonly Algorithm _algorithm = Algorithm.ECDSA256;
+        private static readonly int _keySize = 2048;
         private const string FIDDLER_ROOT_COMMON_NAME = "FIDDLER_ROOT_DO_NOT_TRUST";
+
+        // End configuration
+
         private const string FIDDLER_EE_PRIVATE_KEY_NAME = "FIDDLER_EE_KEY";
         private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY";
         private readonly Dictionary<string, X509Certificate2> _certificateCache = new Dictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly ReaderWriterLock _rwl = new ReaderWriterLock();
         private readonly CertificateGenerator _generator = new CertificateGenerator();
-        private static readonly KeyProviderBase _keyProviderEngine = KeyProviders.CAPI;
-        private static readonly int _keySize = 2048;
         private PrivateKey _eePrivateKey;
         private static readonly object _keyGenLock = new object();
         private X509Certificate2 _root;
@@ -30,10 +35,11 @@ namespace VCSJones.FiddlerCertProvider4
                 {
                     if (_eePrivateKey == null)
                     {
-                        var key = PrivateKey.OpenExisting(_keyProviderEngine, FIDDLER_EE_PRIVATE_KEY_NAME);
+                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
+                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
                         if (key == null)
                         {
-                            key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_EE_PRIVATE_KEY_NAME, Algorithm.RSA, _keySize);
+                            key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, _keySize);
                         }
                         _eePrivateKey = key;
                     }
@@ -108,7 +114,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             try
             {
-                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, Algorithm.RSA, _keySize, true))
+                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, _keySize, true))
                 {
                     _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName($"CN={FIDDLER_ROOT_COMMON_NAME}"), HashAlgorithm.SHA384);
                     return true;

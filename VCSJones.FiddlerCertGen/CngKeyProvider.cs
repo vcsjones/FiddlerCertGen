@@ -7,6 +7,7 @@ namespace VCSJones.FiddlerCertGen
     {
         internal static CngKeyProvider Instance { get; } = new CngKeyProvider();
         private static readonly NCryptStorageProvider _storageProvider = NCryptStorageProvider.MicrosoftSoftwareKeyStorageProvider;
+        public override string Name { get; } = "CNG";
 
         internal override NCryptKeyOrCryptProviderSafeHandle CreateKey(string keyName, int keySize, Algorithm algorithm, bool overwrite)
         {

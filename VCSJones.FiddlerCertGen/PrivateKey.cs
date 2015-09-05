@@ -30,10 +30,6 @@ namespace VCSJones.FiddlerCertGen
         /// <returns>A new private key.</returns>
         public static PrivateKey CreateNew(KeyProviderBase keyProvider, string keyName, Algorithm algorithm, int? keySize = null, bool overwrite = false)
         {
-            if (keySize != null && algorithm != Algorithm.RSA)
-            {
-                throw new ArgumentException("Key size must be null for specified algorithm.", nameof(keySize));
-            }
             var keySizeValue = keySize ?? 2048;
             var handle = keyProvider.CreateKey(keyName, keySizeValue, algorithm, overwrite);
             return new PrivateKey(handle, keyProvider);
