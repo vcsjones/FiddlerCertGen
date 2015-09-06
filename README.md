@@ -25,3 +25,10 @@ There are two libraries, the VCSJones.FiddlerCertGen project, which is a .NET 2.
 #How do I use it?
 The easiest way is to take the output of both projects and put them beside the `Fiddler.exe` executable, such as `C:\Program Files (x86)\Fiddler2`. The assemblies are called `CertMaker.dll` and `VCSJones.FiddlerCertGen.dll`.
 Inclusing the PDBs isn't strictly required, but makes debugging possible.
+
+#How do key sizes work?
+For RSA it's fairly simple, you specify you want to use the RSA algorithm and use the `keySize` parameter when creating a private key. If it isn't specifed, 2048 is the default. Practically most browsers expect to receive a key size of 1024, 2048, or 4096.
+
+For ECDSA each key size, 256, 384, and 521 are their own algorithm. This is how the CNG layer in Windows works. The `keySize` parameter is ignored when using ECDSA and is instead determined by the algorithm used.
+
+Not all browsers support ECDSA, but the more modern ones do. SSLLabs has a good breakdown of which browsers don't. In practice, a key will always be 256-bit for an end-entity certificate, in fact Safari on OS X or iOS does not support 384-bit end-entity certificates. It does support 384-bit roots and intermediates. 521-bit certificates are never encountered in the wild.
