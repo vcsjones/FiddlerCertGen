@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
 
@@ -12,16 +11,15 @@ namespace VCSJones.FiddlerCertProvider4
         private static readonly KeyProviderBase _keyProviderEngine;
         private static readonly Algorithm _algorithm;
         private static readonly HashAlgorithm _signatureAlgorithm;
-        private const string FIDDLER_ROOT_COMMON_NAME = "FIDDLER_ROOT_DO_NOT_TRUST";
+        private const string FIDDLER_ROOT_DN = "CN=DO_NOT_TRUST_FiddlerRoot, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
+        private const string FIDDLER_EE_DN = "CN=DO_NOT_TRUST_Fiddler, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_PRIVATE_KEY_NAME = "FIDDLER_EE_KEY";
         private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY";
-        private readonly Dictionary<string, X509Certificate2> _certificateCache = new Dictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly ReaderWriterLock _rwl = new ReaderWriterLock();
+        private readonly ConcurrentDictionary<string, X509Certificate2> _certificateCache = new ConcurrentDictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly CertificateGenerator _generator = new CertificateGenerator();
         private PrivateKey _eePrivateKey;
         private static readonly object _keyGenLock = new object();
         private X509Certificate2 _root;
-        private const int LOCK_TIMEOUT = 5000;
 
         static FiddlerCertificate()
         {
@@ -54,44 +52,10 @@ namespace VCSJones.FiddlerCertProvider4
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
-            _rwl.AcquireReaderLock(LOCK_TIMEOUT);
-            try
+            return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
-                var certExists = _certificateCache.ContainsKey(sHostname);
-                if (certExists)
-                {
-                    return _certificateCache[sHostname];
-                }
-                else
-                {
-                    var cert = _generator.GenerateCertificate(GetRootCertificate(), GetEEPrivateKey(), new X500DistinguishedName("CN=FIDDLER_EE_DO_NOT_TRUST,OU=vcsjones.com"), new[] { sHostname });
-                    var lockCookie = default(LockCookie);
-                    try
-                    {
-                        lockCookie = _rwl.UpgradeToWriterLock(LOCK_TIMEOUT);
-                        if (!_certificateCache.ContainsKey(sHostname))
-                        {
-                            _certificateCache.Add(sHostname, cert);
-                        }
-                        else
-                        {
-                            return _certificateCache[sHostname];
-                        }
-                    }
-                    finally
-                    {
-                        _rwl.DowngradeFromWriterLock(ref lockCookie);
-                    }
-                    return cert;
-                }
-
-            }
-            finally
-            {
-                _rwl.ReleaseReaderLock();
-            }
-
-
+                return _generator.GenerateCertificate(GetRootCertificate(), GetEEPrivateKey(), new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
+            });
         }
 
         public X509Certificate2 GetRootCertificate()
@@ -103,7 +67,7 @@ namespace VCSJones.FiddlerCertProvider4
                 try
                 {
                     store.Open(OpenFlags.ReadOnly);
-                    var certs = store.Certificates.Find(X509FindType.FindBySubjectName, FIDDLER_ROOT_COMMON_NAME, true);
+                    var certs = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, FIDDLER_ROOT_DN, true);
                     _root = certs[0];
                 }
                 finally
@@ -120,7 +84,7 @@ namespace VCSJones.FiddlerCertProvider4
             {
                 using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, overwrite:true))
                 {
-                    _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName($"CN={FIDDLER_ROOT_COMMON_NAME}"), _signatureAlgorithm);
+                    _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
                     return true;
                 }
             }
@@ -170,8 +134,8 @@ namespace VCSJones.FiddlerCertProvider4
             {
                 userStore.Open(OpenFlags.ReadOnly);
                 machineStore.Open(OpenFlags.ReadOnly);
-                bUserTrusted = userStore.Certificates.Find(X509FindType.FindBySubjectName, FIDDLER_ROOT_COMMON_NAME, true).Count > 0;
-                bMachineTrusted = machineStore.Certificates.Find(X509FindType.FindBySubjectName, FIDDLER_ROOT_COMMON_NAME, true).Count > 0;
+                bUserTrusted = userStore.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, FIDDLER_ROOT_DN, true).Count > 0;
+                bMachineTrusted = machineStore.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, FIDDLER_ROOT_DN, true).Count > 0;
                 return bUserTrusted || bMachineTrusted;
             }
             catch
@@ -189,7 +153,6 @@ namespace VCSJones.FiddlerCertProvider4
 
         public bool ClearCertificateCache(bool bClearRoot)
         {
-            _rwl.AcquireWriterLock(LOCK_TIMEOUT);
             _certificateCache.Clear();
             if (bClearRoot)
             {
@@ -198,7 +161,7 @@ namespace VCSJones.FiddlerCertProvider4
                 try
                 {
                     store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadWrite);
-                    var roots = store.Certificates.Find(X509FindType.FindBySubjectName, FIDDLER_ROOT_COMMON_NAME, true);
+                    var roots = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, FIDDLER_ROOT_DN, true);
                     store.RemoveRange(roots);
                 }
                 catch
@@ -210,15 +173,12 @@ namespace VCSJones.FiddlerCertProvider4
                     store.Close();
                 }
             }
-            _rwl.ReleaseWriterLock();
             return true;
         }
 
         public bool CacheCertificateForHost(string sHost, X509Certificate2 oCert)
         {
-            _rwl.AcquireWriterLock(LOCK_TIMEOUT);
-            _certificateCache[sHost] = oCert;
-            _rwl.ReleaseWriterLock();
+            _certificateCache.AddOrUpdate(sHost, oCert, delegate { return oCert; });
             return true;
         }
     }
