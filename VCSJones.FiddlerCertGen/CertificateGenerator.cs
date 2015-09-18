@@ -55,17 +55,21 @@ namespace VCSJones.FiddlerCertGen
             }
         }
 
-        private static List<X509AlternativeName> DnsAltNamesFromArray(string[] dnsNames)
+        private static List<X509AlternativeName> DnsAltNamesFromArray(string[] dnsNames, string[] ipAddresses)
         {
             var list = new List<X509AlternativeName>();
             foreach (var dnsName in dnsNames)
             {
-                list.Add(new X509AlternativeName {Type = X509AlternativeNameType.DnsName, Value = dnsName});
+                list.Add(new X509AlternativeName { Type = X509AlternativeNameType.DnsName, Value = dnsName });
+            }
+            foreach (var ipAddress in ipAddresses)
+            {
+                list.Add(new X509AlternativeName { Type = X509AlternativeNameType.IpAddress, Value = ipAddress });
             }
             return list;
         }
 
-        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, DateTime? notBefore = null, DateTime? notAfter = null)
+        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, string[] ipAddresses = null, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             if (!issuingCertificate.HasPrivateKey)
             {
@@ -105,7 +109,7 @@ namespace VCSJones.FiddlerCertGen
                                     extensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
                                     extensions.Add(new X509KeyUsageExtension(usage, true));
                                     extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection {new Oid(OIDs.EKU_SERVER)}, false));
-                                    extensions.Add(new X509SubjectAlternativeNameExtension(DnsAltNamesFromArray(dnsNames), false));
+                                    extensions.Add(new X509SubjectAlternativeNameExtension(DnsAltNamesFromArray(dnsNames, ipAddresses ?? new string[0]), false));
                                     using (var sha1 = new SHA1CryptoServiceProvider())
                                     {
                                         var issuingKeyId = sha1.ComputeHash(signingPublicKey.Key);

@@ -9,7 +9,7 @@
         //CERT_ALT_NAME_DIRECTORY_NAME = 5,
         //CERT_ALT_NAME_EDI_PARTY_NAME = 6,
         Url = 7,
-        //CERT_ALT_NAME_IP_ADDRESS = 8,
+        IpAddress = 8,
         //CERT_ALT_NAME_REGISTERED_ID = 9,
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -43,6 +44,21 @@ namespace VCSJones.FiddlerCertGen
                                 pwszURL = Marshal.StringToHGlobalUni(altNames[index].Value)
                             };
                             unionValues.Add(altName.Value.pwszURL);
+                            break;
+                        case CertAltNameChoice.CERT_ALT_NAME_IP_ADDRESS:
+                            var ip = IPAddress.Parse(altNames[index].Value);
+                            var addressBytes = ip.GetAddressBytes();
+                            var ipBytes = Marshal.AllocHGlobal(addressBytes.Length);
+                            Marshal.Copy(addressBytes, 0, ipBytes, addressBytes.Length);
+                            altName.Value = new CERT_ALT_NAME_ENTRY_UNION
+                            {
+                                IPAddress = new CRYPTOAPI_BLOB
+                                {
+                                    cbData = (uint) addressBytes.Length,
+                                    pbData = ipBytes
+                                }
+                            };
+                            unionValues.Add(ipBytes);
                             break;
                     }
                     Marshal.StructureToPtr(altName, IntPtrArithmetic.Add(altNamesBuffer, offset), false);
