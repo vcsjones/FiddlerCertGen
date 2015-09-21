@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
 
@@ -17,9 +18,18 @@ namespace VCSJones.FiddlerCertProvider4
         private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY";
         private readonly ConcurrentDictionary<string, X509Certificate2> _certificateCache = new ConcurrentDictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly CertificateGenerator _generator = new CertificateGenerator();
-        private PrivateKey _eePrivateKey;
-        private static readonly object _keyGenLock = new object();
         private X509Certificate2 _root;
+        private readonly Lazy<PrivateKey> _eePrivateKey = new Lazy<PrivateKey>(() =>
+        {
+
+            var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
+            var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
+            if (key == null)
+            {
+                key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm);
+            }
+            return key;
+        }, LazyThreadSafetyMode.ExecutionAndPublication);
 
         static FiddlerCertificate()
         {
@@ -29,32 +39,11 @@ namespace VCSJones.FiddlerCertProvider4
         }
 
 
-        private PrivateKey GetEEPrivateKey()
-        {
-            if (_eePrivateKey == null)
-            {
-                lock (_keyGenLock)
-                {
-                    if (_eePrivateKey == null)
-                    {
-                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
-                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
-                        if (key == null)
-                        {
-                            key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm);
-                        }
-                        _eePrivateKey = key;
-                    }
-                }
-            }
-            return _eePrivateKey;
-        }
-
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
             return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
-                return _generator.GenerateCertificate(GetRootCertificate(), GetEEPrivateKey(), new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
+                return _generator.GenerateCertificate(GetRootCertificate(), _eePrivateKey.Value, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
             });
         }
 
@@ -68,7 +57,17 @@ namespace VCSJones.FiddlerCertProvider4
                 {
                     store.Open(OpenFlags.ReadOnly);
                     var certs = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, FIDDLER_ROOT_DN, true);
-                    _root = certs[0];
+                    if (certs.Count == 0)
+                    {
+                        if (!CreateRootCertificate())
+                        {
+                            throw new InvalidOperationException("Failed to generated a temporary root.");
+                        }
+                    }
+                    else
+                    { 
+                    return certs[0];
+}
                 }
                 finally
                 {
