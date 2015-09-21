@@ -12,11 +12,13 @@ namespace VCSJones.FiddlerCertGen
     {
         private readonly NCryptKeyOrCryptProviderSafeHandle _handle;
         private readonly KeyProviderBase _keyProvider;
+        private readonly KeySpec _keySpec;
 
-        internal PrivateKey(NCryptKeyOrCryptProviderSafeHandle handle, KeyProviderBase keyProvider)
+        internal PrivateKey(NCryptKeyOrCryptProviderSafeHandle handle, KeyProviderBase keyProvider, KeySpec keySpec)
         {
             _handle = handle;
             _keyProvider = keyProvider;
+            _keySpec = keySpec;
         }
 
         /// <summary>
@@ -31,8 +33,9 @@ namespace VCSJones.FiddlerCertGen
         public static PrivateKey CreateNew(KeyProviderBase keyProvider, string keyName, Algorithm algorithm, int? keySize = null, bool overwrite = false)
         {
             var keySizeValue = keySize ?? 2048;
-            var handle = keyProvider.CreateKey(keyName, keySizeValue, algorithm, overwrite);
-            return new PrivateKey(handle, keyProvider);
+            KeySpec keySpec;
+            var handle = keyProvider.CreateKey(keyName, keySizeValue, algorithm, overwrite, out keySpec);
+            return new PrivateKey(handle, keyProvider, keySpec);
         }
 
         public static PrivateKey OpenExisting(KeyProviderBase keyProvider, string keyName)
@@ -41,12 +44,13 @@ namespace VCSJones.FiddlerCertGen
             {
                 throw new ArgumentNullException(nameof(keyName));
             }
-            var handle = keyProvider.OpenExisting(keyName);
+            KeySpec keySpec;
+            var handle = keyProvider.OpenExisting(keyName, out keySpec);
             if (handle == null)
             {
                 return null;
             }
-            return new PrivateKey(handle, keyProvider);
+            return new PrivateKey(handle, keyProvider, keySpec);
         }
 
         internal NCryptKeyOrCryptProviderSafeHandle Handle => _handle;
@@ -54,16 +58,16 @@ namespace VCSJones.FiddlerCertGen
         public string Name => _keyProvider.GetName(_handle);
         public AlgorithmGroup AlgorithmGroup => new AlgorithmGroup(_keyProvider.GetAlgorithmGroup(_handle));
 
+        public KeySpec KeySpec => _keySpec;
 
         public PublicKeyInfo ToPublicKey()
         {
             uint infoSize = 0;
             var publicKeyObjId = AlgorithmGroup == AlgorithmGroup.RSA ? OIDs.RSA_PUBLIC_KEY : OIDs.ECC_PUBLIC_KEY;
-            var keySpec = _handle.IsNCryptKey ? KeySpec.NONE : KeySpec.AT_KEYEXCHANGE;
-            if (Crypt32.CryptExportPublicKeyInfoEx(_handle, keySpec, EncodingType.X509_ASN_ENCODING | EncodingType.PKCS_7_ASN_ENCODING, publicKeyObjId, 0, IntPtr.Zero, IntPtr.Zero, ref infoSize))
+            if (Crypt32.CryptExportPublicKeyInfoEx(_handle, _keySpec, EncodingType.X509_ASN_ENCODING | EncodingType.PKCS_7_ASN_ENCODING, publicKeyObjId, 0, IntPtr.Zero, IntPtr.Zero, ref infoSize))
             {
                 var buffer = Marshal.AllocHGlobal((int)infoSize);
-                if (Crypt32.CryptExportPublicKeyInfoEx(_handle, keySpec, EncodingType.X509_ASN_ENCODING | EncodingType.PKCS_7_ASN_ENCODING, publicKeyObjId, 0, IntPtr.Zero, buffer, ref infoSize))
+                if (Crypt32.CryptExportPublicKeyInfoEx(_handle, _keySpec, EncodingType.X509_ASN_ENCODING | EncodingType.PKCS_7_ASN_ENCODING, publicKeyObjId, 0, IntPtr.Zero, buffer, ref infoSize))
                 {
                     return new PublicKeyInfo(buffer);
                 }

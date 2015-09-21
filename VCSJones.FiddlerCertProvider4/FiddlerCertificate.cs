@@ -65,9 +65,9 @@ namespace VCSJones.FiddlerCertProvider4
                         }
                     }
                     else
-                    { 
-                    return certs[0];
-}
+                    {
+                        return certs[0];
+                    }
                 }
                 finally
                 {
@@ -81,7 +81,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             try
             {
-                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, overwrite:true))
+                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, overwrite: true))
                 {
                     _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
                     return true;

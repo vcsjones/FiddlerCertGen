@@ -24,7 +24,7 @@ namespace VCSJones.FiddlerCertGen
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
-            return new PrivateKey(handle, keySpec == KeySpec.NCRYPT ? KeyProviders.CNG : KeyProviders.CAPI);
+            return new PrivateKey(handle, keySpec == KeySpec.NCRYPT ? KeyProviders.CNG : KeyProviders.CAPI, keySpec);
         }
 
         private static byte[] SerializeCertificate(IntPtr pData, uint cbData)
@@ -130,12 +130,12 @@ namespace VCSJones.FiddlerCertGen
                                 certInfo.rgExtension = extensions.Extensions.rgExtension;
                                 var size = 0u;
                                 var CERT_INFO_TYPE = (IntPtr) 2;
-                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, KeySpec.NONE, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, IntPtr.Zero, ref size))
+                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, IntPtr.Zero, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                 }
                                 var buffer = Marshal.AllocHGlobal((int) size);
-                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, KeySpec.NONE, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, buffer, ref size))
+                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, buffer, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                 }
@@ -144,7 +144,7 @@ namespace VCSJones.FiddlerCertGen
                                 var keyProvInfo = new CRYPT_KEY_PROV_INFO
                                 {
                                     cProvParam = 0,
-                                    dwKeySpec = privateKey.Handle.IsNCryptKey ? KeySpec.NONE : KeySpec.AT_KEYEXCHANGE,
+                                    dwKeySpec = privateKey.KeySpec,
                                     dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_AES,
                                     pwszProvName = privateKey.ProviderName,
                                     dwFlags = 0,

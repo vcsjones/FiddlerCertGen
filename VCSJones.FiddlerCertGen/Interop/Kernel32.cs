@@ -113,7 +113,8 @@ namespace VCSJones.FiddlerCertGen.Interop
             );
     }
 
-    internal enum KeySpec : uint
+    [type: Flags]
+    public enum KeySpec : uint
     {
         NONE = 0,
         AT_KEYEXCHANGE = 1,

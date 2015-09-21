@@ -9,7 +9,7 @@ namespace VCSJones.FiddlerCertGen
         private static readonly NCryptStorageProvider _storageProvider = NCryptStorageProvider.MicrosoftSoftwareKeyStorageProvider;
         public override string Name { get; } = "CNG";
 
-        internal override NCryptKeyOrCryptProviderSafeHandle CreateKey(string keyName, int keySize, Algorithm algorithm, bool overwrite)
+        internal override NCryptKeyOrCryptProviderSafeHandle CreateKey(string keyName, int keySize, Algorithm algorithm, bool overwrite, out KeySpec keySpec)
         {
             NCryptKeyOrCryptProviderSafeHandle keyHandle;
             var flags = overwrite ? NCryptCreatePersistedKeyFlags.NCRYPT_OVERWRITE_KEY_FLAG : NCryptCreatePersistedKeyFlags.NONE;
@@ -28,6 +28,7 @@ namespace VCSJones.FiddlerCertGen
             {
                 throw new InvalidOperationException("Failed to finalize key.");
             }
+            keySpec = KeySpec.NONE;
             return keyHandle;
         }
 
@@ -46,8 +47,9 @@ namespace VCSJones.FiddlerCertGen
             return NCryptPropertyReader.ReadStringUni(handle, CngProperties.NCRYPT_ALGORITHM_GROUP_PROPERTY);
         }
 
-        internal override NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName)
+        internal override NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName, out KeySpec keySpec)
         {
+            keySpec = KeySpec.NONE;
             NCryptKeyOrCryptProviderSafeHandle keyHandle;
             var result = NCrypt.NCryptOpenKey(_storageProvider.Handle, out keyHandle, keyName, KeySpec.NONE, 0u);
             if (result == SECURITY_STATUS.ERROR_SUCCESS)
