@@ -9,7 +9,7 @@ namespace VCSJones.FiddlerCertGen
         private static readonly NCryptStorageProvider _storageProvider = NCryptStorageProvider.MicrosoftSoftwareKeyStorageProvider;
         public override string Name { get; } = "CNG";
 
-        internal override NCryptKeyOrCryptProviderSafeHandle CreateKey(string keyName, int keySize, Algorithm algorithm, bool overwrite, out KeySpec keySpec)
+        internal override NCryptKeyOrCryptProviderSafeHandle CreateKey(string keyName, int keySize, Algorithm algorithm, bool overwrite, KeyUsage keyUsage, out KeySpec keySpec)
         {
             NCryptKeyOrCryptProviderSafeHandle keyHandle;
             var flags = overwrite ? NCryptCreatePersistedKeyFlags.NCRYPT_OVERWRITE_KEY_FLAG : NCryptCreatePersistedKeyFlags.NONE;

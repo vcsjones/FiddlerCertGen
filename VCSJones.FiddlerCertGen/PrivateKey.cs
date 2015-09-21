@@ -27,14 +27,15 @@ namespace VCSJones.FiddlerCertGen
         /// <param name="keyProvider">The provider for the key. <see cref="KeyProviders"/> contains different types of providers.</param>
         /// <param name="keyName">The name of the key to persist. Use <c>null</c> to create an ephemeral key.</param>
         /// <param name="algorithm">The algorithm of the key. Not all providers support all algorithms.</param>
+        /// <param name="keyUsage">Specifies the purpose of the key. This is not appicable to CNG algorithms.</param>
         /// <param name="keySize">The size of the key. Only valid for RSA keys.</param>
         /// <param name="overwrite">True to overwrite the provider's exisint private key, otherwise false.</param>
         /// <returns>A new private key.</returns>
-        public static PrivateKey CreateNew(KeyProviderBase keyProvider, string keyName, Algorithm algorithm, int? keySize = null, bool overwrite = false)
+        public static PrivateKey CreateNew(KeyProviderBase keyProvider, string keyName, Algorithm algorithm, KeyUsage keyUsage, int? keySize = null, bool overwrite = false)
         {
             var keySizeValue = keySize ?? 2048;
             KeySpec keySpec;
-            var handle = keyProvider.CreateKey(keyName, keySizeValue, algorithm, overwrite, out keySpec);
+            var handle = keyProvider.CreateKey(keyName, keySizeValue, algorithm, overwrite, keyUsage, out keySpec);
             return new PrivateKey(handle, keyProvider, keySpec);
         }
 

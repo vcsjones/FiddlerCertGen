@@ -10,7 +10,7 @@ namespace ScratchGui
             var provider = KeyProviders.CAPI;
             var algorithmRoot = Algorithm.RSA;
             var algorithm = Algorithm.RSA;
-            using (PrivateKey rootKey = PrivateKey.CreateNew(provider, "SNARF", algorithmRoot, overwrite:true), eeKey = PrivateKey.CreateNew(provider, "SNARF2", algorithm, overwrite: true))
+            using (PrivateKey rootKey = PrivateKey.CreateNew(provider, "SNARF", algorithmRoot, KeyUsage.Signature, overwrite:true), eeKey = PrivateKey.CreateNew(provider, "SNARF2", algorithm, KeyUsage.KeyExchange, overwrite: true))
             {
                 var generator = new CertificateGenerator();
                 var root = generator.GenerateCertificateAuthority(rootKey, new X500DistinguishedName("CN=test"), HashAlgorithm.SHA256);

@@ -202,7 +202,7 @@ namespace VCSJones.FiddlerCertGen
                         var keyProvInfo = new CRYPT_KEY_PROV_INFO
                         {
                             cProvParam = 0,
-                            dwKeySpec = privateKey.Handle.IsNCryptKey ? KeySpec.NONE : KeySpec.AT_KEYEXCHANGE,
+                            dwKeySpec = privateKey.KeySpec,
                             dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_AES,
                             pwszProvName = privateKey.ProviderName,
                             dwFlags = 0,

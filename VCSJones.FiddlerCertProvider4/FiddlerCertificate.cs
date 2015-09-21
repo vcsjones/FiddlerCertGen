@@ -26,7 +26,7 @@ namespace VCSJones.FiddlerCertProvider4
             var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
             if (key == null)
             {
-                key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm);
+                key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);
             }
             return key;
         }, LazyThreadSafetyMode.ExecutionAndPublication);
@@ -81,7 +81,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             try
             {
-                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, overwrite: true))
+                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, KeyUsage.Signature, overwrite: true))
                 {
                     _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
                     return true;

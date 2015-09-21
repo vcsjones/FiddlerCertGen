@@ -77,6 +77,7 @@
     <Compile Include="Interop\SelfSignFlags.cs" />
     <Compile Include="KeyProviderBase.cs" />
     <Compile Include="KeyProviders.cs" />
+    <Compile Include="KeyUsage.cs" />
     <Compile Include="LibrarySafeHandle.cs" />
     <Compile Include="Interop\Crypt32.cs" />
     <Compile Include="Interop\Kernel32.cs" />
