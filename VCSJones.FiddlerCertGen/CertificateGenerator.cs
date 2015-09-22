@@ -25,6 +25,7 @@ namespace VCSJones.FiddlerCertGen
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
+            handle.SetCallerFree(callerFree);
             return new PrivateKey(handle, keySpec == KeySpec.NCRYPT ? KeyProviders.CNG : KeyProviders.CAPI, keySpec);
         }
 

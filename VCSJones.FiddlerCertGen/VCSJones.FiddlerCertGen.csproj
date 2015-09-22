@@ -70,6 +70,7 @@
     <Compile Include="Interop\CRYPT_KEY_PROV_INFO.cs" />
     <Compile Include="Interop\CRYPT_OBJID_BLOB.cs" />
     <Compile Include="Interop\EncodingType.cs" />
+    <Compile Include="Interop\LocalBufferSafeHandle.cs" />
     <Compile Include="Interop\NATIVE_CRYPTOAPI_BLOB.cs" />
     <Compile Include="Interop\NCryptPropertyReader.cs" />
     <Compile Include="Interop\NCryptPropertyWriter.cs" />

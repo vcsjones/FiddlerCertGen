@@ -65,14 +65,17 @@ namespace VCSJones.FiddlerCertGen
                 }
                 certAltName.rgAltEntry = altNamesBuffer;
                 uint dataSize = 0;
-                IntPtr data;
+                LocalBufferSafeHandle data;
                 if (!Crypt32.CryptEncodeObjectEx(EncodingType.X509_ASN_ENCODING, OIDs.szOID_SUBJECT_ALT_NAME2, ref certAltName, 0x8000, IntPtr.Zero, out data, ref dataSize))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                var buffer = new byte[dataSize];
-                Marshal.Copy(data, buffer, 0, (int)dataSize);
-                return buffer;
+                using(data)
+                {
+                    var buffer = new byte[dataSize];
+                    Marshal.Copy(data.DangerousGetHandle(), buffer, 0, (int)dataSize);
+                    return buffer;
+                }
             }
             finally
             {

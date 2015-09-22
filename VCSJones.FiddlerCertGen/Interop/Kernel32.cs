@@ -29,6 +29,13 @@ namespace VCSJones.FiddlerCertGen.Interop
                 [param: In] LibrarySafeHandle hModule,
                 [param: In, MarshalAs(UnmanagedType.LPStr)] string lpProcName
             );
+
+        [return: MarshalAs(UnmanagedType.SysInt)]
+        [method: DllImport(KERNEL32, EntryPoint = "LocalFree", CallingConvention = CallingConvention.Winapi, ExactSpelling = true)]
+        public static extern IntPtr LocalFree
+            (
+                [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr hMem
+            );
     }
 
     internal static class NCrypt
