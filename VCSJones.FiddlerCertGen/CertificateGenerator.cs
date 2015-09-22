@@ -20,7 +20,8 @@ namespace VCSJones.FiddlerCertGen
             NCryptKeyOrCryptProviderSafeHandle handle;
             KeySpec keySpec;
             bool callerFree;
-            if (!Crypt32.CryptAcquireCertificatePrivateKey(cert.Handle, AcquirePrivateKeyFlags.CRYPT_ACQUIRE_ALLOW_NCRYPT_KEY_FLAG, IntPtr.Zero, out handle, out keySpec, out callerFree))
+            var flags = PlatformSupport.HasCngSupport ? AcquirePrivateKeyFlags.CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG : 0u;
+            if (!Crypt32.CryptAcquireCertificatePrivateKey(cert.Handle, flags, IntPtr.Zero, out handle, out keySpec, out callerFree))
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
