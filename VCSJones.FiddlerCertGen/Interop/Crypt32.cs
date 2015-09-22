@@ -86,7 +86,7 @@ namespace VCSJones.FiddlerCertGen.Interop
             [param: In, MarshalAs(UnmanagedType.Struct)] ref CERT_ALT_NAME_INFO pvStructInfo,
             [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pEncodePara,
-            [param: Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 6, ArraySubType = UnmanagedType.U1)] out byte[] pvEncoded,
+            [param: Out, MarshalAs(UnmanagedType.SysInt)] out IntPtr pvEncoded,
             [param: In, Out, MarshalAs(UnmanagedType.U4)] ref uint pcbEncoded
             );
 
@@ -98,7 +98,7 @@ namespace VCSJones.FiddlerCertGen.Interop
             [param: In, MarshalAs(UnmanagedType.Struct)] ref CERT_AUTHORITY_KEY_ID2_INFO pvStructInfo,
             [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pEncodePara,
-            [param: Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 6)] out byte[] pvEncoded,
+            [param: Out, MarshalAs(UnmanagedType.SysInt)] out IntPtr pvEncoded,
             [param: In, Out, MarshalAs(UnmanagedType.U4)] ref uint pcbEncoded
             );
 

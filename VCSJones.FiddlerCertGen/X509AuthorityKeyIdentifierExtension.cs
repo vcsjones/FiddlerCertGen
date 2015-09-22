@@ -35,12 +35,14 @@ namespace VCSJones.FiddlerCertGen
 
                 }
                 uint dataSize = 0;
-                byte[] data;
-                if (Crypt32.CryptEncodeObjectEx(EncodingType.X509_ASN_ENCODING, OIDs.szOID_AUTHORITY_KEY_IDENTIFIER2, ref identifier, 0x8000, IntPtr.Zero, out data, ref dataSize))
+                IntPtr data;
+                if (!Crypt32.CryptEncodeObjectEx(EncodingType.X509_ASN_ENCODING, OIDs.szOID_AUTHORITY_KEY_IDENTIFIER2, ref identifier, 0x8000, IntPtr.Zero, out data, ref dataSize))
                 {
-                    return data;
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                var buffer = new byte[dataSize];
+                Marshal.Copy(data, buffer, 0, (int)dataSize);
+                return buffer;
             }
             finally
             {

@@ -65,12 +65,14 @@ namespace VCSJones.FiddlerCertGen
                 }
                 certAltName.rgAltEntry = altNamesBuffer;
                 uint dataSize = 0;
-                byte[] data;
+                IntPtr data;
                 if (!Crypt32.CryptEncodeObjectEx(EncodingType.X509_ASN_ENCODING, OIDs.szOID_SUBJECT_ALT_NAME2, ref certAltName, 0x8000, IntPtr.Zero, out data, ref dataSize))
                 {
-                    throw new Win32Exception("Failed to encode object.");
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                return data;
+                var buffer = new byte[dataSize];
+                Marshal.Copy(data, buffer, 0, (int)dataSize);
+                return buffer;
             }
             finally
             {

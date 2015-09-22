@@ -13,7 +13,7 @@ namespace VCSJones.FiddlerCertGen
 
         }
 
-        public bool IsNCryptKey => NCrypt.NCryptIsKeyHandle(handle);
+        public bool IsNCryptKey => PlatformSupport.HasCngSupport && NCrypt.NCryptIsKeyHandle(handle);
 
         protected override bool ReleaseHandle()
         {
