@@ -46,6 +46,7 @@
     <Compile Include="Func.cs" />
     <Compile Include="HashAlgorithm.cs" />
     <Compile Include="Interop\AcquirePrivateKeyFlags.cs" />
+    <Compile Include="Interop\AdvApi32.cs" />
     <Compile Include="Interop\ALG_ID.cs" />
     <Compile Include="Interop\ALG_CLASS.cs" />
     <Compile Include="Interop\ALG_SID.cs" />
