@@ -26,9 +26,9 @@ namespace VCSJones.FiddlerCertProvider2
 
         static FiddlerCertificate()
         {
-            _algorithm = Algorithm.RSA;
-            _keyProviderEngine = KeyProviders.CAPI;
-            _signatureAlgorithm = HashAlgorithm.SHA1;
+            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA256 : Algorithm.RSA;
+            _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
+            _signatureAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
         }
 
 
@@ -139,7 +139,7 @@ namespace VCSJones.FiddlerCertProvider2
                     return true;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 FiddlerApplication.Log.LogString(e.Message);
                 FiddlerApplication.Log.LogString(e.StackTrace);
