@@ -47,9 +47,8 @@ namespace VCSJones.FiddlerCertGen
             return NCryptPropertyReader.ReadStringUni(handle, CngProperties.NCRYPT_ALGORITHM_GROUP_PROPERTY);
         }
 
-        internal override NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName, out KeySpec keySpec)
+        internal override NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName)
         {
-            keySpec = KeySpec.NONE;
             NCryptKeyOrCryptProviderSafeHandle keyHandle;
             var result = NCrypt.NCryptOpenKey(_storageProvider.Handle, out keyHandle, keyName, KeySpec.NONE, 0u);
             if (result == SECURITY_STATUS.ERROR_SUCCESS)

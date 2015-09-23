@@ -23,7 +23,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
 
             var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
-            var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
+            var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName, KeyUsage.KeyExchange);
             if (key == null)
             {
                 key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);

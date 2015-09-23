@@ -18,7 +18,7 @@ namespace VCSJones.FiddlerCertGen
         static CapiKeyProvider()
         {
             //Windows XP has a goofy name for the provider.
-            _providerName = PlatformSupport.UseLegacyKeyStoreName ? "Microsoft Enhanced RSA and AES Cryptographic Provider (Prototype)" : "Microsoft Enhanced RSA and AES Cryptographic Provider";
+            _providerName = "Microsoft Enhanced Cryptographic Provider v1.0";
         }
 
 
@@ -30,16 +30,16 @@ namespace VCSJones.FiddlerCertGen
                 throw new ArgumentException("CAPI does not support algorithms other than RSA.", nameof(algorithm));
             }
             NCryptKeyOrCryptProviderSafeHandle provider;
-            if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_AES, CryptAcquireContextFlags.CRYPT_NEWKEYSET))
+            if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_FULL, CryptAcquireContextFlags.CRYPT_NEWKEYSET))
             {
                 var lastError = Marshal.GetLastWin32Error();
                 if (lastError == ALREADY_EXISTS && overwrite)
                 {
-                    if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_AES, CryptAcquireContextFlags.CRYPT_DELETEKEYSET))
+                    if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_FULL, CryptAcquireContextFlags.CRYPT_DELETEKEYSET))
                     {
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
-                    if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_AES, CryptAcquireContextFlags.CRYPT_NEWKEYSET))
+                    if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_FULL, CryptAcquireContextFlags.CRYPT_NEWKEYSET))
                     {
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                     }
@@ -81,25 +81,7 @@ namespace VCSJones.FiddlerCertGen
 
         internal override string GetName(NCryptKeyOrCryptProviderSafeHandle handle)
         {
-            const int PP_NAME = 0x6;
-            uint size = 0;
-            if (!AdvApi32.CryptGetProvParam(handle, PP_NAME, IntPtr.Zero, ref size, 0u))
-            {
-                throw new InvalidOperationException("Failed to get property.");
-            }
-            var buffer = Marshal.AllocHGlobal((int)size);
-            try
-            {
-                if (!AdvApi32.CryptGetProvParam(handle, PP_NAME, buffer, ref size, 0u))
-                {
-                    throw new InvalidOperationException("Failed to get property.");
-                }
-                return Marshal.PtrToStringAnsi(buffer);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
+            return ReadProvParam(handle, ProvParam.PP_NAME, Marshal.PtrToStringAnsi);
         }
 
         internal override string GetAlgorithmGroup(NCryptKeyOrCryptProviderSafeHandle handle)
@@ -108,12 +90,11 @@ namespace VCSJones.FiddlerCertGen
             return AlgorithmGroup.RSA.Name;
         }
 
-        internal override unsafe NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName, out KeySpec keySpec)
+        internal override NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName)
         {
-            keySpec = KeySpec.NONE;
             const int DOES_NOT_EXIST = unchecked((int)0x80090016);
             NCryptKeyOrCryptProviderSafeHandle provider;
-            if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_AES, 0u))
+            if (!AdvApi32.CryptAcquireContext(out provider, keyName, _providerName, ProviderType.PROV_RSA_FULL, 0u))
             {
                 var result = Marshal.GetLastWin32Error();
                 if (result == DOES_NOT_EXIST)
@@ -122,15 +103,29 @@ namespace VCSJones.FiddlerCertGen
                 }
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
-            const uint PP_KEYSPEC = 0x27;
-            uint* keySpecBuffer = stackalloc uint[1];
-            var dataLength = (uint)Marshal.SizeOf(typeof(uint));
-            if (!AdvApi32.CryptGetProvParam(provider, PP_KEYSPEC, keySpecBuffer, ref dataLength, 0u))
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            keySpec = (KeySpec)(*keySpecBuffer);
             return provider;
+        }
+
+        private static T ReadProvParam<T>(NCryptKeyOrCryptProviderSafeHandle hProv, ProvParam property, Func<IntPtr, T> convert)
+        {
+            uint size = 0;
+            if (!AdvApi32.CryptGetProvParam(hProv, property, IntPtr.Zero, ref size, 0u))
+            {
+                throw new InvalidOperationException("Failed to get property.");
+            }
+            var buffer = Marshal.AllocHGlobal((int)size);
+            try
+            {
+                if (!AdvApi32.CryptGetProvParam(hProv, property, buffer, ref size, 0u))
+                {
+                    throw new InvalidOperationException("Failed to get property.");
+                }
+                return convert(buffer);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
         }
     }
 }

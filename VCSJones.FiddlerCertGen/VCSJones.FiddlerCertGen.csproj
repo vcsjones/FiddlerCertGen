@@ -76,6 +76,7 @@
     <Compile Include="Interop\NCryptPropertyReader.cs" />
     <Compile Include="Interop\NCryptPropertyWriter.cs" />
     <Compile Include="Interop\NCryptStorageProvider.cs" />
+    <Compile Include="Interop\ProvParam.cs" />
     <Compile Include="Interop\SelfSignFlags.cs" />
     <Compile Include="KeyProviderBase.cs" />
     <Compile Include="KeyProviders.cs" />

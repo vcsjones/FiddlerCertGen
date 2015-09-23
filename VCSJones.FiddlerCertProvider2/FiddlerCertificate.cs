@@ -26,30 +26,34 @@ namespace VCSJones.FiddlerCertProvider2
 
         static FiddlerCertificate()
         {
-            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA256 : Algorithm.RSA;
-            _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
-            _signatureAlgorithm = HashAlgorithm.SHA256;
+            _algorithm = Algorithm.RSA;
+            _keyProviderEngine = KeyProviders.CAPI;
+            _signatureAlgorithm = HashAlgorithm.SHA1;
         }
 
 
         private PrivateKey GetEEPrivateKey()
         {
+            FiddlerApplication.Log.LogString($"Begin {nameof(GetEEPrivateKey)}");
             if (_eePrivateKey == null)
             {
                 lock (_keyGenLock)
                 {
                     if (_eePrivateKey == null)
                     {
-                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
-                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
+                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{_algorithm}_{_keyProviderEngine.Name}";
+                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName, KeyUsage.KeyExchange);
+                        FiddlerApplication.Log.LogString($"Existing key: {key?.Name}");
                         if (key == null)
                         {
                             key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);
+                            FiddlerApplication.Log.LogString($"New key: {key?.Name}");
                         }
                         _eePrivateKey = key;
                     }
                 }
             }
+            FiddlerApplication.Log.LogString($"End {nameof(GetEEPrivateKey)}");
             return _eePrivateKey;
         }
 
@@ -135,8 +139,10 @@ namespace VCSJones.FiddlerCertProvider2
                     return true;
                 }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
+                FiddlerApplication.Log.LogString(e.Message);
+                FiddlerApplication.Log.LogString(e.StackTrace);
                 return false;
             }
         }

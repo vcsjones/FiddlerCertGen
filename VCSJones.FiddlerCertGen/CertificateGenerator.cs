@@ -110,33 +110,33 @@ namespace VCSJones.FiddlerCertGen
                                     }
                                     extensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
                                     extensions.Add(new X509KeyUsageExtension(usage, true));
-                                    extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection {new Oid(OIDs.EKU_SERVER)}, false));
+                                    extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid(OIDs.EKU_SERVER) }, false));
                                     extensions.Add(new X509SubjectAlternativeNameExtension(DnsAltNamesFromArray(dnsNames, ipAddresses ?? new string[0]), false));
                                     using (var sha1 = new SHA1CryptoServiceProvider())
                                     {
                                         var issuingKeyId = sha1.ComputeHash(signingPublicKey.Key);
                                         extensions.Add(new X509SubjectKeyIdentifierExtension(sha1.ComputeHash(publicKey.Key), false));
-                                        extensions.Add(new X509AuthorityKeyIdentifierExtension(issuingKeyId, null));
+                                        extensions.Add(new X509AuthorityKeyIdentifierExtension(issuingKeyId, issuingCertificate.GetSerialNumber()));
                                     }
                                 }
                                 var certInfo = new CERT_INFO();
                                 certInfo.Subject = blob;
-                                certInfo.SerialNumber = new NATIVE_CRYPTOAPI_BLOB {cbData = (uint) serialNumber.Length, pbData = serialNumberPtr};
+                                certInfo.SerialNumber = new NATIVE_CRYPTOAPI_BLOB { cbData = (uint)serialNumber.Length, pbData = serialNumberPtr };
                                 certInfo.SubjectPublicKeyInfo = publicKey.PublicKey;
                                 certInfo.dwVersion = CertificateVersion.CERT_V3;
-                                certInfo.Issuer = new NATIVE_CRYPTOAPI_BLOB {cbData = (uint) issuingCertificate.SubjectName.RawData.Length, pbData = issuerDnPtr};
+                                certInfo.Issuer = new NATIVE_CRYPTOAPI_BLOB { cbData = (uint)issuingCertificate.SubjectName.RawData.Length, pbData = issuerDnPtr };
                                 certInfo.SignatureAlgorithm = signatureAlgorithm;
                                 certInfo.NotAfter = FileTimeHelper.ToFileTimeStructureUtc(notAfter ?? DateTime.Now.AddHours(-1).AddYears(5));
                                 certInfo.NotBefore = FileTimeHelper.ToFileTimeStructureUtc(notBefore ?? DateTime.Now.AddHours(-1));
                                 certInfo.cExtension = extensions.Extensions.cExtension;
                                 certInfo.rgExtension = extensions.Extensions.rgExtension;
                                 var size = 0u;
-                                var CERT_INFO_TYPE = (IntPtr) 2;
+                                var CERT_INFO_TYPE = (IntPtr)2;
                                 if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, IntPtr.Zero, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                 }
-                                var buffer = Marshal.AllocHGlobal((int) size);
+                                var buffer = Marshal.AllocHGlobal((int)size);
                                 if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, buffer, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -147,7 +147,7 @@ namespace VCSJones.FiddlerCertGen
                                 {
                                     cProvParam = 0,
                                     dwKeySpec = privateKey.KeySpec,
-                                    dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_AES,
+                                    dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_FULL,
                                     pwszProvName = privateKey.ProviderName,
                                     dwFlags = 0,
                                     pwszContainerName = privateKey.Name
@@ -171,54 +171,52 @@ namespace VCSJones.FiddlerCertGen
 
         public unsafe X509Certificate2 GenerateCertificateAuthority(PrivateKey privateKey, X500DistinguishedName dn, HashAlgorithm signatureAlgorithm, DateTime? notBefore = null, DateTime? notAfter = null)
         {
+            fixed (byte* dnPtr = dn.RawData)
             {
-                fixed (byte* dnPtr = dn.RawData)
+                var blob = new NATIVE_CRYPTOAPI_BLOB
                 {
-                    var blob = new NATIVE_CRYPTOAPI_BLOB
+                    cbData = (uint)dn.RawData.Length,
+                    pbData = dnPtr
+                };
+                var signatureAlgorithmIdentifier = new CRYPT_ALGORITHM_IDENTIFIER
+                {
+                    pszObjId = HashAlgorithmToSignatureAlgorithm(privateKey, signatureAlgorithm)
+                };
+                using (var extensions = new MarshalX509ExtensionCollection())
+                {
+                    using (extensions.Freeze())
                     {
-                        cbData = (uint)dn.RawData.Length,
-                        pbData = dnPtr
-                    };
-                    var signatureAlgorithmIdentifier = new CRYPT_ALGORITHM_IDENTIFIER
-                    {
-                        pszObjId = HashAlgorithmToSignatureAlgorithm(privateKey, signatureAlgorithm)
-                    };
-                    using (var extensions = new MarshalX509ExtensionCollection())
-                    {
-                        using (extensions.Freeze())
+                        extensions.Add(new X509BasicConstraintsExtension(true, true, 1, true));
+                        extensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign, true));
+                        extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid(OIDs.EKU_SERVER) }, false));
+                        using (var publicKey = privateKey.ToPublicKey())
                         {
-                            extensions.Add(new X509BasicConstraintsExtension(true, true, 1, true));
-                            extensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign, true));
-                            extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid(OIDs.EKU_SERVER) }, false));
-                            using (var publicKey = privateKey.ToPublicKey())
+                            using (var sha1 = new SHA1CryptoServiceProvider())
                             {
-                                using (var sha1 = new SHA1CryptoServiceProvider())
-                                {
-                                    var pubKeyHash = sha1.ComputeHash(publicKey.Key);
-                                    extensions.Add(new X509SubjectKeyIdentifierExtension(pubKeyHash, false));
-                                    extensions.Add(new X509AuthorityKeyIdentifierExtension(pubKeyHash, null));
-                                }
+                                var pubKeyHash = sha1.ComputeHash(publicKey.Key);
+                                extensions.Add(new X509SubjectKeyIdentifierExtension(pubKeyHash, false));
+                                extensions.Add(new X509AuthorityKeyIdentifierExtension(pubKeyHash, null));
                             }
                         }
-                        var certExtensions = extensions.Extensions;
-                        var keyProvInfo = new CRYPT_KEY_PROV_INFO
-                        {
-                            cProvParam = 0,
-                            dwKeySpec = privateKey.KeySpec,
-                            dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_AES,
-                            pwszProvName = privateKey.ProviderName,
-                            dwFlags = 0,
-                            pwszContainerName = privateKey.Name
-                        };
-                        var beginning = new SYSTEMTIME(notBefore ?? DateTime.UtcNow.AddHours(-1));
-                        var expiration = new SYSTEMTIME(notAfter ?? DateTime.UtcNow.AddHours(-1).AddYears(30));
-                        var certContext = Crypt32.CertCreateSelfSignCertificate(privateKey.Handle, ref blob, SelfSignFlags.NONE, ref keyProvInfo, ref signatureAlgorithmIdentifier, beginning, expiration, ref certExtensions);
-                        if (certContext == IntPtr.Zero)
-                        {
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                        }
-                        return new X509Certificate2(certContext);
                     }
+                    var certExtensions = extensions.Extensions;
+                    var keyProvInfo = new CRYPT_KEY_PROV_INFO
+                    {
+                        cProvParam = 0,
+                        dwKeySpec = privateKey.KeySpec,
+                        dwProvType = privateKey.Handle.IsNCryptKey ? ProviderType.CNG : ProviderType.PROV_RSA_FULL,
+                        pwszProvName = privateKey.ProviderName,
+                        dwFlags = 0,
+                        pwszContainerName = privateKey.Name
+                    };
+                    var beginning = new SYSTEMTIME(notBefore ?? DateTime.UtcNow.AddHours(-1));
+                    var expiration = new SYSTEMTIME(notAfter ?? DateTime.UtcNow.AddHours(-1).AddYears(30));
+                    var certContext = Crypt32.CertCreateSelfSignCertificate(privateKey.Handle, ref blob, SelfSignFlags.NONE, ref keyProvInfo, ref signatureAlgorithmIdentifier, beginning, expiration, ref certExtensions);
+                    if (certContext == IntPtr.Zero)
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                    return new X509Certificate2(certContext);
                 }
             }
         }
