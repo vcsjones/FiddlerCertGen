@@ -22,7 +22,7 @@ namespace VCSJones.FiddlerCertProvider4
         private readonly Lazy<PrivateKey> _eePrivateKey = new Lazy<PrivateKey>(() =>
         {
 
-            var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
+            var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{_algorithm}_{_signatureAlgorithm}_{_keyProviderEngine.Name}_3";
             var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
             if (key == null)
             {
@@ -66,7 +66,7 @@ namespace VCSJones.FiddlerCertProvider4
                     }
                     else
                     {
-                        return certs[0];
+                        _root = certs[0];
                     }
                 }
                 finally
@@ -81,6 +81,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             try
             {
+                var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{_algorithm}_{_signatureAlgorithm}_{_keyProviderEngine.Name};";
                 using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, KeyUsage.Signature, overwrite: true))
                 {
                     _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
