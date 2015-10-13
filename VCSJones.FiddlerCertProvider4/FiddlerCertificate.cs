@@ -4,10 +4,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
+using System.Windows.Forms;
 
 namespace VCSJones.FiddlerCertProvider4
 {
-    public class FiddlerCertificate : ICertificateProvider3
+    public class FiddlerCertificate : ICertificateProvider3, ICertificateProviderInfo
     {
         private static readonly KeyProviderBase _keyProviderEngine;
         private static readonly Algorithm _algorithm;
@@ -15,7 +16,7 @@ namespace VCSJones.FiddlerCertProvider4
         private const string FIDDLER_ROOT_DN = "CN=DO_NOT_TRUST_FiddlerRoot, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_DN = "CN=DO_NOT_TRUST_Fiddler, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_PRIVATE_KEY_NAME = "FIDDLER_EE_KEY";
-        private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY";
+        private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY_2";
         private readonly ConcurrentDictionary<string, X509Certificate2> _certificateCache = new ConcurrentDictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly CertificateGenerator _generator = new CertificateGenerator();
         private X509Certificate2 _root;
@@ -33,7 +34,7 @@ namespace VCSJones.FiddlerCertProvider4
 
         static FiddlerCertificate()
         {
-            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA256 : Algorithm.RSA;
+            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
             _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
             _signatureAlgorithm = HashAlgorithm.SHA256;
         }
@@ -180,6 +181,22 @@ namespace VCSJones.FiddlerCertProvider4
         {
             _certificateCache.AddOrUpdate(sHost, oCert, delegate { return oCert; });
             return true;
+        }
+
+        public string GetConfigurationString()
+        {
+            //This doesn't seem to be used by Fiddler. It uses its own implementation only in the 
+            //ShowConfigurationUI implementation that we are going to re-implement anyway.
+            return string.Empty;
+        }
+
+        public void ShowConfigurationUI(IntPtr hwndOwner)
+        {
+            var owner = NativeWindow.FromHandle(hwndOwner);
+            using (var dialog = new ConfigurationDialog(GetRootCertificate()))
+            {
+                dialog.ShowDialog(owner);
+            }
         }
     }
 }

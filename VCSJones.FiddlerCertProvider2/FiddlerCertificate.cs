@@ -26,7 +26,7 @@ namespace VCSJones.FiddlerCertProvider2
 
         static FiddlerCertificate()
         {
-            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA256 : Algorithm.RSA;
+            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
             _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
             _signatureAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
         }
@@ -114,7 +114,7 @@ namespace VCSJones.FiddlerCertProvider2
                     }
                     else
                     {
-                        return certs[0];
+                        _root = certs[0];
                     }
                 }
                 finally
