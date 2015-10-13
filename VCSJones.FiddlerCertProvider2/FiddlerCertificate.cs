@@ -34,26 +34,22 @@ namespace VCSJones.FiddlerCertProvider2
 
         private PrivateKey GetEEPrivateKey()
         {
-            FiddlerApplication.Log.LogString($"Begin {nameof(GetEEPrivateKey)}");
             if (_eePrivateKey == null)
             {
                 lock (_keyGenLock)
                 {
                     if (_eePrivateKey == null)
                     {
-                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{_algorithm}_{_keyProviderEngine.Name}";
-                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName, KeyUsage.KeyExchange);
-                        FiddlerApplication.Log.LogString($"Existing key: {key?.Name}");
+                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
+                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
                         if (key == null)
                         {
                             key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);
-                            FiddlerApplication.Log.LogString($"New key: {key?.Name}");
                         }
                         _eePrivateKey = key;
                     }
                 }
             }
-            FiddlerApplication.Log.LogString($"End {nameof(GetEEPrivateKey)}");
             return _eePrivateKey;
         }
 
@@ -141,8 +137,6 @@ namespace VCSJones.FiddlerCertProvider2
             }
             catch (Exception e)
             {
-                FiddlerApplication.Log.LogString(e.Message);
-                FiddlerApplication.Log.LogString(e.StackTrace);
                 return false;
             }
         }

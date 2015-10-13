@@ -37,8 +37,18 @@ namespace VCSJones.FiddlerCertGen.Interop
         public static extern bool CryptGetProvParam
             (
             [param: In] NCryptKeyOrCryptProviderSafeHandle hProv,
-            [param: In, MarshalAs(UnmanagedType.U4)] ProvParam dwParam,
+            [param: In, MarshalAs(UnmanagedType.U4)] uint dwParam,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pbData,
+            [param: In, Out, MarshalAs(UnmanagedType.U4)] ref uint pdwDataLen,
+            [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags
+            );
+
+        [method: DllImport(ADVAPI32, EntryPoint = "CryptGetProvParam", CallingConvention = CallingConvention.Winapi, SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern unsafe bool CryptGetProvParam
+            (
+            [param: In] NCryptKeyOrCryptProviderSafeHandle hProv,
+            [param: In, MarshalAs(UnmanagedType.U4)] uint dwParam,
+            [param: In] void* pbData,
             [param: In, Out, MarshalAs(UnmanagedType.U4)] ref uint pdwDataLen,
             [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags
             );

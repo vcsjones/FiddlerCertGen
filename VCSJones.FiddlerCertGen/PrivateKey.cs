@@ -39,30 +39,19 @@ namespace VCSJones.FiddlerCertGen
             return new PrivateKey(handle, keyProvider, keySpec);
         }
 
-        public static PrivateKey OpenExisting(KeyProviderBase keyProvider, string keyName, KeyUsage keyUsage)
+        public static PrivateKey OpenExisting(KeyProviderBase keyProvider, string keyName)
         {
             if (string.IsNullOrEmpty(keyName))
             {
                 throw new ArgumentNullException(nameof(keyName));
             }
-            var handle = keyProvider.OpenExisting(keyName);
+            KeySpec keySpec;
+            var handle = keyProvider.OpenExisting(keyName, out keySpec);
             if (handle == null)
             {
                 return null;
             }
-            KeySpec algorithmKeySpec;
-            switch (keyUsage)
-            {
-                case KeyUsage.KeyExchange:
-                    algorithmKeySpec = KeySpec.AT_KEYEXCHANGE;
-                    break;
-                case KeyUsage.Signature:
-                    algorithmKeySpec = KeySpec.AT_SIGNATURE;
-                    break;
-                default:
-                    throw new ArgumentException(nameof(keyUsage));
-            }
-            return new PrivateKey(handle, keyProvider, algorithmKeySpec);
+            return new PrivateKey(handle, keyProvider, keySpec);
         }
 
         internal NCryptKeyOrCryptProviderSafeHandle Handle => _handle;
