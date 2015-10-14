@@ -17,7 +17,7 @@ namespace VCSJones.FiddlerCertProvider4
 
         public ConfigurationDialog(X509Certificate2 root) : this()
         {
-            _root = root;
+            _root = new X509Certificate2(root);
         }
 
         private void exportPrivateKey_Click(object sender, EventArgs e)
@@ -29,7 +29,7 @@ namespace VCSJones.FiddlerCertProvider4
             exportInfo.dwSubjectType = CryptUIExportInfoSubjectType.CRYPTUI_WIZ_EXPORT_CERT_CONTEXT;
             exportInfo.pwszExportFileName = null;
             exportInfo.rghStores = IntPtr.Zero;
-            NativeMethods.CryptUIWizExport(CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_PRIVATE_KEY | CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_NO_DELETE_PRIVATE_KEY, this.Handle, "Export PFX", ref exportInfo, IntPtr.Zero);
+            NativeMethods.CryptUIWizExport(CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_PRIVATE_KEY | CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_NO_DELETE_PRIVATE_KEY, Handle, "Export Fiddler Root Certificate", ref exportInfo, IntPtr.Zero);
         }
 
         private void ConfigurationDialog_Load(object sender, EventArgs e)
