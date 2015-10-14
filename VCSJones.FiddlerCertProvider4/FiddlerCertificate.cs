@@ -34,8 +34,9 @@ namespace VCSJones.FiddlerCertProvider4
                             lock (typeof(CertificateConfiguration))
                             {
                                 var algorithm = CertificateConfiguration.EECertificateAlgorithm;
-                                var keyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{algorithm}_{_keyProviderEngine.Name}_4";
-                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.KeyExchange);
+                                var keySize = CertificateConfiguration.EERsaKeySize;
+                                var keyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name}_4";
+                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.KeyExchange, keySize: keySize);
                                 _eePrivateKey = key;
                             }
                         }
@@ -102,8 +103,9 @@ namespace VCSJones.FiddlerCertProvider4
                 {
                     var algorithm = CertificateConfiguration.RootCertificateAlgorithm;
                     var signatureAlgorithm = CertificateConfiguration.RootCertificateHashAlgorithm;
-                    var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{algorithm}_{signatureAlgorithm}_{_keyProviderEngine.Name};";
-                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, algorithm, KeyUsage.Signature, overwrite: true))
+                    var keySize = CertificateConfiguration.RootRsaKeySize;
+                    var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name};";
+                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.Signature, overwrite: true, keySize: keySize))
                     {
                         _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), signatureAlgorithm);
                         return true;
