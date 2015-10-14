@@ -124,7 +124,7 @@
             // keySize
             // 
             this.keySize.Increment = new decimal(new int[] {
-            1024,
+            512,
             0,
             0,
             0});
@@ -171,7 +171,7 @@
             // eeKeySize
             // 
             this.eeKeySize.Increment = new decimal(new int[] {
-            1024,
+            512,
             0,
             0,
             0});

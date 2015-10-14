@@ -122,7 +122,7 @@ namespace VCSJones.FiddlerCertProvider4
                 keySize.Enabled = true;
                 keySize.Minimum = 1024m;
                 keySize.Maximum = 4096m;
-                keySize.Increment = 1024m;
+                keySize.Increment = 512m;
                 keySize.Value = CertificateConfiguration.RootRsaKeySize;
             }
         }
@@ -145,7 +145,7 @@ namespace VCSJones.FiddlerCertProvider4
                 eeKeySize.Enabled = true;
                 eeKeySize.Minimum = 1024m;
                 eeKeySize.Maximum = 4096m;
-                eeKeySize.Increment = 1024m;
+                eeKeySize.Increment = 512m;
                 eeKeySize.Value = CertificateConfiguration.EERsaKeySize;
             }
         }
