@@ -63,6 +63,14 @@ namespace VCSJones.FiddlerCertProvider4
                 selectedRootHashAlgorithm != CertificateConfiguration.RootCertificateHashAlgorithm ||
                 selectedRootAlgorithm != CertificateConfiguration.RootCertificateAlgorithm ||
                 (keySize.Value != CertificateConfiguration.RootRsaKeySize && selectedRootAlgorithm == Algorithm.RSA);
+            if (selectedRootHashAlgorithm == HashAlgorithm.SHA1 && selectedRootHashAlgorithm != CertificateConfiguration.RootCertificateHashAlgorithm)
+            {
+                var result = MessageBox.Show(this, "Browsers are phasing out support for SHA1 certificates and may display warnings or cease to load sites. It is recommended that you use SHA256 or SHA384. Continue anyway?", "Root Certificate Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
             if (requiresRootRegeneration)
             {
                 MessageBox.Show(this, "Changing configuration of the root certificates requires disabling HTTPS interception, removing the root certificate, and re-creating it.", "Root Certificate Changes", MessageBoxButtons.OK);
