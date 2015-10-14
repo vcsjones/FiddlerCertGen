@@ -35,7 +35,7 @@ namespace VCSJones.FiddlerCertGen
 
         public static Algorithm RSA { get; } = new Algorithm(nameof(RSA));
         public static Algorithm ECDSA_P256 { get; } = new Algorithm(nameof(ECDSA_P256));
-        public static Algorithm ECDSA_P384 { get; } = new Algorithm(nameof(ECDSA_P256));
+        public static Algorithm ECDSA_P384 { get; } = new Algorithm(nameof(ECDSA_P384));
         public static Algorithm ECDSA_P521 { get; } = new Algorithm(nameof(ECDSA_P521));
 
         public bool Equals(Algorithm other)

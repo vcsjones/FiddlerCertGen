@@ -11,8 +11,6 @@ namespace VCSJones.FiddlerCertProvider4
     public class FiddlerCertificate : ICertificateProvider3, ICertificateProviderInfo
     {
         private static readonly KeyProviderBase _keyProviderEngine;
-        private static readonly Algorithm _algorithm;
-        private static readonly HashAlgorithm _signatureAlgorithm;
         private const string FIDDLER_ROOT_DN = "CN=DO_NOT_TRUST_FiddlerRoot, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_DN = "CN=DO_NOT_TRUST_Fiddler, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_PRIVATE_KEY_NAME = "FIDDLER_EE_KEY";
@@ -20,23 +18,41 @@ namespace VCSJones.FiddlerCertProvider4
         private readonly ConcurrentDictionary<string, X509Certificate2> _certificateCache = new ConcurrentDictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly CertificateGenerator _generator = new CertificateGenerator();
         private X509Certificate2 _root;
-        private readonly Lazy<PrivateKey> _eePrivateKey = new Lazy<PrivateKey>(() =>
-        {
+        private static PrivateKey _eePrivateKey;
+        private static readonly object _privateKeyLock = new object();
 
-            var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{_algorithm}_{_signatureAlgorithm}_{_keyProviderEngine.Name}_3";
-            var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
-            if (key == null)
+        private static PrivateKey EEPrivateKey
+        {
+            get
             {
-                key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);
+                if (_eePrivateKey == null)
+                {
+                    lock (_privateKeyLock)
+                    {
+                        if (_eePrivateKey == null)
+                        {
+                            lock (typeof(CertificateConfiguration))
+                            {
+                                var algorithm = CertificateConfiguration.EECertificateAlgorithm;
+                                var keyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{algorithm}_{_keyProviderEngine.Name}_4";
+                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.KeyExchange);
+                                _eePrivateKey = key;
+                            }
+                        }
+                    }
+                }
+                return _eePrivateKey;
             }
-            return key;
-        }, LazyThreadSafetyMode.ExecutionAndPublication);
+        }
+
+        internal static void ForceEECertificateClear()
+        {
+            _eePrivateKey = null;
+        }
 
         static FiddlerCertificate()
         {
-            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
             _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
-            _signatureAlgorithm = HashAlgorithm.SHA256;
         }
 
 
@@ -44,7 +60,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
-                return _generator.GenerateCertificate(GetRootCertificate(), _eePrivateKey.Value, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
+                return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
             });
         }
 
@@ -82,11 +98,16 @@ namespace VCSJones.FiddlerCertProvider4
         {
             try
             {
-                var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{_algorithm}_{_signatureAlgorithm}_{_keyProviderEngine.Name};";
-                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, KeyUsage.Signature, overwrite: true))
+                lock(typeof(CertificateConfiguration))
                 {
-                    _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
-                    return true;
+                    var algorithm = CertificateConfiguration.RootCertificateAlgorithm;
+                    var signatureAlgorithm = CertificateConfiguration.RootCertificateHashAlgorithm;
+                    var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{algorithm}_{signatureAlgorithm}_{_keyProviderEngine.Name};";
+                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, algorithm, KeyUsage.Signature, overwrite: true))
+                    {
+                        _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), signatureAlgorithm);
+                        return true;
+                    }
                 }
             }
             catch
@@ -195,6 +216,7 @@ namespace VCSJones.FiddlerCertProvider4
             var owner = NativeWindow.FromHandle(hwndOwner);
             using (var dialog = new ConfigurationDialog(GetRootCertificate()))
             {
+                dialog.Owner = Control.FromHandle(hwndOwner) as Form;
                 dialog.ShowDialog(owner);
             }
         }
