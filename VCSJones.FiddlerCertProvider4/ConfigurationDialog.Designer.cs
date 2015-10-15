@@ -44,6 +44,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.helpProvider = new System.Windows.Forms.HelpProvider();
+            this.eeHashAlgorithm = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.keySize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.eeKeySize)).BeginInit();
             this.SuspendLayout();
@@ -66,7 +68,7 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.helpProvider.SetHelpString(this.saveButton, "");
-            this.saveButton.Location = new System.Drawing.Point(204, 175);
+            this.saveButton.Location = new System.Drawing.Point(244, 175);
             this.saveButton.Name = "saveButton";
             this.helpProvider.SetShowHelp(this.saveButton, false);
             this.saveButton.Size = new System.Drawing.Size(75, 23);
@@ -79,7 +81,7 @@
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(285, 175);
+            this.cancelButton.Location = new System.Drawing.Point(325, 175);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 2;
@@ -90,7 +92,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(30, 9);
+            this.label1.Location = new System.Drawing.Point(67, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(126, 13);
             this.label1.TabIndex = 3;
@@ -102,7 +104,7 @@
             this.rootAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.rootAlgorithm.FormattingEnabled = true;
             this.helpProvider.SetHelpString(this.rootAlgorithm, resources.GetString("rootAlgorithm.HelpString"));
-            this.rootAlgorithm.Location = new System.Drawing.Point(172, 6);
+            this.rootAlgorithm.Location = new System.Drawing.Point(212, 6);
             this.rootAlgorithm.Name = "rootAlgorithm";
             this.helpProvider.SetShowHelp(this.rootAlgorithm, true);
             this.rootAlgorithm.Size = new System.Drawing.Size(188, 21);
@@ -112,7 +114,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(2, 62);
+            this.label2.Location = new System.Drawing.Point(39, 62);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(154, 13);
             this.label2.TabIndex = 5;
@@ -123,8 +125,10 @@
             // 
             this.rootHashAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.rootHashAlgorithm.FormattingEnabled = true;
-            this.helpProvider.SetHelpString(this.rootHashAlgorithm, resources.GetString("rootHashAlgorithm.HelpString"));
-            this.rootHashAlgorithm.Location = new System.Drawing.Point(172, 59);
+            this.helpProvider.SetHelpString(this.rootHashAlgorithm, "The algorithm of the signature of root certificate. SHA1 is depcreated and should" +
+        " only be used to test compatibility scenarios. SHA256 or SHA384 are recommended." +
+        "");
+            this.rootHashAlgorithm.Location = new System.Drawing.Point(212, 59);
             this.rootHashAlgorithm.Name = "rootHashAlgorithm";
             this.helpProvider.SetShowHelp(this.rootHashAlgorithm, true);
             this.rootHashAlgorithm.Size = new System.Drawing.Size(188, 21);
@@ -138,7 +142,7 @@
             0,
             0,
             0});
-            this.keySize.Location = new System.Drawing.Point(172, 33);
+            this.keySize.Location = new System.Drawing.Point(212, 33);
             this.keySize.Maximum = new decimal(new int[] {
             4096,
             0,
@@ -162,7 +166,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(82, 35);
+            this.label3.Location = new System.Drawing.Point(119, 35);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(74, 13);
             this.label3.TabIndex = 8;
@@ -177,7 +181,7 @@
             this.seperator.Location = new System.Drawing.Point(0, 86);
             this.seperator.Margin = new System.Windows.Forms.Padding(0);
             this.seperator.Name = "seperator";
-            this.seperator.Size = new System.Drawing.Size(372, 3);
+            this.seperator.Size = new System.Drawing.Size(412, 3);
             this.seperator.TabIndex = 9;
             // 
             // eeKeySize
@@ -188,7 +192,7 @@
             0,
             0,
             0});
-            this.eeKeySize.Location = new System.Drawing.Point(172, 119);
+            this.eeKeySize.Location = new System.Drawing.Point(212, 119);
             this.eeKeySize.Maximum = new decimal(new int[] {
             4096,
             0,
@@ -214,7 +218,7 @@
             this.eeAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.eeAlgorithm.FormattingEnabled = true;
             this.helpProvider.SetHelpString(this.eeAlgorithm, resources.GetString("eeAlgorithm.HelpString"));
-            this.eeAlgorithm.Location = new System.Drawing.Point(172, 92);
+            this.eeAlgorithm.Location = new System.Drawing.Point(212, 92);
             this.eeAlgorithm.Name = "eeAlgorithm";
             this.helpProvider.SetShowHelp(this.eeAlgorithm, true);
             this.eeAlgorithm.Size = new System.Drawing.Size(188, 21);
@@ -224,7 +228,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(5, 95);
+            this.label4.Location = new System.Drawing.Point(42, 95);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(151, 13);
             this.label4.TabIndex = 10;
@@ -234,12 +238,35 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(57, 121);
+            this.label5.Location = new System.Drawing.Point(94, 121);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(99, 13);
             this.label5.TabIndex = 13;
             this.label5.Text = "End Entity Key Size";
             this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // eeHashAlgorithm
+            // 
+            this.eeHashAlgorithm.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.eeHashAlgorithm.FormattingEnabled = true;
+            this.helpProvider.SetHelpString(this.eeHashAlgorithm, "The algorithm of the signature of end entity certificate. SHA1 is depcreated and " +
+        "should only be used to test compatibility scenarios. SHA256 or SHA384 are recomm" +
+        "ended.");
+            this.eeHashAlgorithm.Location = new System.Drawing.Point(212, 145);
+            this.eeHashAlgorithm.Name = "eeHashAlgorithm";
+            this.helpProvider.SetShowHelp(this.eeHashAlgorithm, true);
+            this.eeHashAlgorithm.Size = new System.Drawing.Size(188, 21);
+            this.eeHashAlgorithm.TabIndex = 15;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(14, 148);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(179, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "End Entity Certificate Hash Algorithm";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // ConfigurationDialog
             // 
@@ -247,7 +274,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(372, 210);
+            this.ClientSize = new System.Drawing.Size(412, 210);
+            this.Controls.Add(this.eeHashAlgorithm);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.eeKeySize);
             this.Controls.Add(this.eeAlgorithm);
@@ -295,5 +324,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.HelpProvider helpProvider;
+        private System.Windows.Forms.ComboBox eeHashAlgorithm;
+        private System.Windows.Forms.Label label6;
     }
 }

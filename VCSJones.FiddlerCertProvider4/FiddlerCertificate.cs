@@ -61,7 +61,12 @@ namespace VCSJones.FiddlerCertProvider4
         {
             return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
-                return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname });
+                HashAlgorithm signatureAlgorithm;
+                lock(typeof(CertificateConfiguration))
+                {
+                    signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                }
+                return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname }, signatureAlgorithm: signatureAlgorithm);
             });
         }
 

@@ -71,7 +71,7 @@ namespace VCSJones.FiddlerCertGen
             return list;
         }
 
-        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, string[] ipAddresses = null, DateTime? notBefore = null, DateTime? notAfter = null)
+        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, string[] ipAddresses = null, HashAlgorithm? signatureAlgorithm = null, DateTime? notBefore = null, DateTime? notAfter = null)
         {
             if (!issuingCertificate.HasPrivateKey)
             {
@@ -90,12 +90,16 @@ namespace VCSJones.FiddlerCertGen
                         cbData = (uint)dn.RawData.Length,
                         pbData = dnPtr
                     };
-                    var signatureAlgorithm = new CRYPT_ALGORITHM_IDENTIFIER
+                    var signingSignatureAlgorithmIdentifier = new CRYPT_ALGORITHM_IDENTIFIER
                     {
                         pszObjId = issuingCertificate.SignatureAlgorithm.Value
                     };
                     using (var signingKey = ExtractKey(issuingCertificate))
                     {
+                        var signingAlgorithmIdentifier = new CRYPT_ALGORITHM_IDENTIFIER
+                        {
+                            pszObjId = signatureAlgorithm != null ? HashAlgorithmToSignatureAlgorithm(signingKey, signatureAlgorithm.Value) : issuingCertificate.SignatureAlgorithm.Value
+                        };
                         using (PublicKeyInfo publicKey = privateKey.ToPublicKey(), signingPublicKey = signingKey.ToPublicKey())
                         {
                             using (var extensions = new MarshalX509ExtensionCollection())
@@ -125,19 +129,19 @@ namespace VCSJones.FiddlerCertGen
                                 certInfo.SubjectPublicKeyInfo = publicKey.PublicKey;
                                 certInfo.dwVersion = CertificateVersion.CERT_V3;
                                 certInfo.Issuer = new NATIVE_CRYPTOAPI_BLOB {cbData = (uint) issuingCertificate.SubjectName.RawData.Length, pbData = issuerDnPtr};
-                                certInfo.SignatureAlgorithm = signatureAlgorithm;
+                                certInfo.SignatureAlgorithm = signingAlgorithmIdentifier;
                                 certInfo.NotAfter = FileTimeHelper.ToFileTimeStructureUtc(notAfter ?? DateTime.Now.AddHours(-1).AddYears(5));
                                 certInfo.NotBefore = FileTimeHelper.ToFileTimeStructureUtc(notBefore ?? DateTime.Now.AddHours(-1));
                                 certInfo.cExtension = extensions.Extensions.cExtension;
                                 certInfo.rgExtension = extensions.Extensions.rgExtension;
                                 var size = 0u;
                                 var CERT_INFO_TYPE = (IntPtr) 2;
-                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, IntPtr.Zero, ref size))
+                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signingSignatureAlgorithmIdentifier, IntPtr.Zero, IntPtr.Zero, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                 }
                                 var buffer = Marshal.AllocHGlobal((int) size);
-                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signatureAlgorithm, IntPtr.Zero, buffer, ref size))
+                                if (!Crypt32.CryptSignAndEncodeCertificate(signingKey.Handle, signingKey.KeySpec, EncodingType.X509_ASN_ENCODING, CERT_INFO_TYPE, ref certInfo, ref signingSignatureAlgorithmIdentifier, IntPtr.Zero, buffer, ref size))
                                 {
                                     throw new Win32Exception(Marshal.GetLastWin32Error());
                                 }

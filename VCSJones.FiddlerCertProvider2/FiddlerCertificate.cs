@@ -66,7 +66,12 @@ namespace VCSJones.FiddlerCertProvider2
                 }
                 else
                 {
-                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { sHostname });
+                    HashAlgorithm signatureAlgorithm;
+                    lock(typeof(CertificateConfiguration))
+                    {
+                        signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                    }
+                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { sHostname }, signatureAlgorithm: signatureAlgorithm);
                     var lockCookie = default(LockCookie);
                     try
                     {
@@ -92,8 +97,6 @@ namespace VCSJones.FiddlerCertProvider2
             {
                 _rwl.ReleaseReaderLock();
             }
-
-
         }
 
         public X509Certificate2 GetRootCertificate()

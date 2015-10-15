@@ -59,7 +59,8 @@
   <ItemGroup>
     <EmbeddedResource Include="ConfigurationDialog.resx">
       <DependentUpon>ConfigurationDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
+      <SubType>
+      </SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -37,6 +37,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             Icon = Owner?.Icon;
             rootHashAlgorithm.Items.Add(HashAlgorithm.SHA1);
+            eeHashAlgorithm.Items.Add(HashAlgorithm.SHA1);
             rootAlgorithm.Items.Add(Algorithm.RSA);
             eeAlgorithm.Items.Add(Algorithm.RSA);
             if (PlatformSupport.HasCngSupport)
@@ -47,10 +48,13 @@ namespace VCSJones.FiddlerCertProvider4
                 rootAlgorithm.Items.Add(Algorithm.ECDSA_P384);
                 rootHashAlgorithm.Items.Add(HashAlgorithm.SHA256);
                 rootHashAlgorithm.Items.Add(HashAlgorithm.SHA384);
+                eeHashAlgorithm.Items.Add(HashAlgorithm.SHA256);
+                eeHashAlgorithm.Items.Add(HashAlgorithm.SHA384);
             }
             rootAlgorithm.SelectedItem = CertificateConfiguration.RootCertificateAlgorithm;
             eeAlgorithm.SelectedItem = CertificateConfiguration.EECertificateAlgorithm;
             rootHashAlgorithm.SelectedItem = CertificateConfiguration.RootCertificateHashAlgorithm;
+            eeHashAlgorithm.SelectedItem = CertificateConfiguration.EECertificateHashAlgorithm;
             BindRootKeySize();
             BindEEKeySize();
         }
@@ -58,15 +62,19 @@ namespace VCSJones.FiddlerCertProvider4
         private void saveButton_Click(object sender, EventArgs e)
         {
             var selectedRootHashAlgorithm = (HashAlgorithm)rootHashAlgorithm.SelectedItem;
+            var selectedEEHashAlgorithm = (HashAlgorithm)eeHashAlgorithm.SelectedItem;
             var selectedEElgorithm = (Algorithm)eeAlgorithm.SelectedItem;
             var selectedRootAlgorithm = (Algorithm)rootAlgorithm.SelectedItem;
             bool requiresRootRegeneration =
                 selectedRootHashAlgorithm != CertificateConfiguration.RootCertificateHashAlgorithm ||
                 selectedRootAlgorithm != CertificateConfiguration.RootCertificateAlgorithm ||
                 (keySize.Value != CertificateConfiguration.RootRsaKeySize && selectedRootAlgorithm == Algorithm.RSA);
-            if (selectedRootHashAlgorithm == HashAlgorithm.SHA1 && selectedRootHashAlgorithm != CertificateConfiguration.RootCertificateHashAlgorithm)
+            var hasChangedToSha1 =
+                (selectedRootHashAlgorithm == HashAlgorithm.SHA1 && selectedRootHashAlgorithm != CertificateConfiguration.RootCertificateHashAlgorithm) ||
+                (selectedEEHashAlgorithm == HashAlgorithm.SHA1 && selectedEEHashAlgorithm != CertificateConfiguration.EECertificateHashAlgorithm);
+            if (hasChangedToSha1)
             {
-                var result = MessageBox.Show(this, "Browsers are phasing out support for SHA1 certificates and may display warnings or cease to load sites. It is recommended that you use SHA256 or SHA384. Continue anyway?", "Root Certificate Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                var result = MessageBox.Show(this, "Browsers are phasing out support for SHA1 certificates and may display warnings or cease to load sites. It is recommended that you use SHA256 or SHA384. Continue anyway?", "SHA1 Deprecated", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (result != DialogResult.Yes)
                 {
                     return;
@@ -89,6 +97,7 @@ namespace VCSJones.FiddlerCertProvider4
                 {
                     CertificateConfiguration.EERsaKeySize = (int)eeKeySize.Value;
                 }
+                CertificateConfiguration.EECertificateHashAlgorithm = selectedEEHashAlgorithm;
                 CertificateConfiguration.EECertificateAlgorithm = selectedEElgorithm;
             }
             _certificateProvider.ForceEECertificateClear();

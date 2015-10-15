@@ -7,6 +7,7 @@ namespace VCSJones.FiddlerCertProvider2
         private const string RootCertificateHashAlgorithmPreferenceKey = "fiddler.cng.root-hash-algorithm";
         private const string RootCertificateAlgorithmPreferenceKey = "fiddler.cng.root-algorithm";
         private const string RootCertificateRsaKeySizePreferenceKey = "fiddler.cng.root-rsa-key-size";
+        private const string EECertificateHashAlgorithmPreferenceKey = "fiddler.cng.ee-hash-algorithm";
         private const string EECertificateAlgorithmPreferenceKey = "fiddler.cng.ee-algorithm";
         private const string EECertificateRsaKeySizePreferenceKey = "fiddler.cng.ee-rsa-key-size";
 
@@ -23,6 +24,7 @@ namespace VCSJones.FiddlerCertProvider2
                 Fiddler.FiddlerApplication.Prefs.SetStringPref(RootCertificateAlgorithmPreferenceKey, value.ToString());
             }
         }
+
         public static HashAlgorithm RootCertificateHashAlgorithm
         {
             get
@@ -35,6 +37,20 @@ namespace VCSJones.FiddlerCertProvider2
                 Fiddler.FiddlerApplication.Prefs.SetInt32Pref(RootCertificateHashAlgorithmPreferenceKey, (int)value);
             }
         }
+
+        public static HashAlgorithm EECertificateHashAlgorithm
+        {
+            get
+            {
+                var defaultAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
+                return (HashAlgorithm)Fiddler.FiddlerApplication.Prefs.GetInt32Pref(EECertificateHashAlgorithmPreferenceKey, (int)defaultAlgorithm);
+            }
+            set
+            {
+                Fiddler.FiddlerApplication.Prefs.SetInt32Pref(EECertificateHashAlgorithmPreferenceKey, (int)value);
+            }
+        }
+
         public static Algorithm EECertificateAlgorithm
         {
             get
