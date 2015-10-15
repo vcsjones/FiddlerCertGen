@@ -73,7 +73,7 @@ namespace VCSJones.FiddlerCertProvider4
             }
             if (requiresRootRegeneration)
             {
-                MessageBox.Show(this, "Changing configuration of the root certificates requires disabling HTTPS interception, removing the root certificate, and re-creating it.", "Root Certificate Changes", MessageBoxButtons.OK);
+                MessageBox.Show(this, "Changing configuration of the root certificate requires disabling HTTPS interception, removing the root certificate, and re-creating it.", "Root Certificate Changes", MessageBoxButtons.OK);
             }
             lock (typeof(CertificateConfiguration))
             {

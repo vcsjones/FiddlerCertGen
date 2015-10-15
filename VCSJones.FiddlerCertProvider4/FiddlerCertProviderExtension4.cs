@@ -4,7 +4,6 @@ namespace VCSJones.FiddlerCertProvider4
 {
     public class FiddlerCertProviderExtension4 : Fiddler.IFiddlerExtension
     {
-
         public FiddlerCertProviderExtension4()
         {
             var codeBase = new Uri(typeof(FiddlerCertificate).Assembly.CodeBase);
