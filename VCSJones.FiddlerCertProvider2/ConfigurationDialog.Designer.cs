@@ -1,4 +1,4 @@
-﻿namespace VCSJones.FiddlerCertProvider4
+﻿namespace VCSJones.FiddlerCertProvider2
 {
     partial class ConfigurationDialog
     {

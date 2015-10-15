@@ -4,7 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using VCSJones.FiddlerCertGen;
 
-namespace VCSJones.FiddlerCertProvider4
+namespace VCSJones.FiddlerCertProvider2
 {
     public partial class ConfigurationDialog : Form
     {

@@ -4,53 +4,54 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
+using System.Windows.Forms;
 
 namespace VCSJones.FiddlerCertProvider2
 {
-    public class FiddlerCertificate : ICertificateProvider3
+    public class FiddlerCertificate : ICertificateProvider3, ICertificateProviderInfo
     {
         private static readonly KeyProviderBase _keyProviderEngine;
-        private static readonly Algorithm _algorithm;
-        private static readonly HashAlgorithm _signatureAlgorithm;
         private const string FIDDLER_ROOT_DN = "CN=DO_NOT_TRUST_FiddlerRoot, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_DN = "CN=DO_NOT_TRUST_Fiddler, O=DO_NOT_TRUST, OU=Created by http://www.fiddler2.com";
         private const string FIDDLER_EE_PRIVATE_KEY_NAME = "FIDDLER_EE_KEY";
-        private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY";
+        private const string FIDDLER_ROOT_PRIVATE_KEY_NAME = "FIDDLER_ROOT_KEY_2";
         private readonly Dictionary<string, X509Certificate2> _certificateCache = new Dictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly ReaderWriterLock _rwl = new ReaderWriterLock();
         private readonly CertificateGenerator _generator = new CertificateGenerator();
         private PrivateKey _eePrivateKey;
-        private static readonly object _keyGenLock = new object();
+        private static readonly object _privateKeyLock = new object();
         private X509Certificate2 _root;
         private const int LOCK_TIMEOUT = 5000;
 
         static FiddlerCertificate()
         {
-            _algorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
             _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
-            _signatureAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
         }
 
 
-        private PrivateKey GetEEPrivateKey()
+        private PrivateKey EEPrivateKey
         {
-            if (_eePrivateKey == null)
+            get
             {
-                lock (_keyGenLock)
+                if (_eePrivateKey == null)
                 {
-                    if (_eePrivateKey == null)
+                    lock (_privateKeyLock)
                     {
-                        var fiddlerEePrivateKeyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_${_algorithm}_${_keyProviderEngine.Name}";
-                        var key = PrivateKey.OpenExisting(_keyProviderEngine, fiddlerEePrivateKeyName);
-                        if (key == null)
+                        if (_eePrivateKey == null)
                         {
-                            key = PrivateKey.CreateNew(_keyProviderEngine, fiddlerEePrivateKeyName, _algorithm, KeyUsage.KeyExchange);
+                            lock (typeof(CertificateConfiguration))
+                            {
+                                var algorithm = CertificateConfiguration.EECertificateAlgorithm;
+                                var keySize = CertificateConfiguration.EERsaKeySize;
+                                var keyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name}_4";
+                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.KeyExchange, keySize: keySize);
+                                _eePrivateKey = key;
+                            }
                         }
-                        _eePrivateKey = key;
                     }
                 }
+                return _eePrivateKey;
             }
-            return _eePrivateKey;
         }
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
@@ -65,7 +66,7 @@ namespace VCSJones.FiddlerCertProvider2
                 }
                 else
                 {
-                    var cert = _generator.GenerateCertificate(GetRootCertificate(), GetEEPrivateKey(), new X500DistinguishedName(FIDDLER_EE_DN), new[] { sHostname });
+                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { sHostname });
                     var lockCookie = default(LockCookie);
                     try
                     {
@@ -125,17 +126,29 @@ namespace VCSJones.FiddlerCertProvider2
             return _root;
         }
 
+        internal void ForceEECertificateClear()
+        {
+            _eePrivateKey = null;
+        }
+
         public bool CreateRootCertificate()
         {
             try
             {
-                using (var key = PrivateKey.CreateNew(_keyProviderEngine, FIDDLER_ROOT_PRIVATE_KEY_NAME, _algorithm, KeyUsage.Signature, overwrite: true))
+                lock (typeof(CertificateConfiguration))
                 {
-                    _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), _signatureAlgorithm);
-                    return true;
+                    var algorithm = CertificateConfiguration.RootCertificateAlgorithm;
+                    var signatureAlgorithm = CertificateConfiguration.RootCertificateHashAlgorithm;
+                    var keySize = CertificateConfiguration.RootRsaKeySize;
+                    var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name};";
+                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.Signature, overwrite: true, keySize: keySize))
+                    {
+                        _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), signatureAlgorithm);
+                        return true;
+                    }
                 }
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }
@@ -231,6 +244,23 @@ namespace VCSJones.FiddlerCertProvider2
             _certificateCache[sHost] = oCert;
             _rwl.ReleaseWriterLock();
             return true;
+        }
+
+        public string GetConfigurationString()
+        {
+            //This doesn't seem to be used by Fiddler. It uses its own implementation only in the 
+            //ShowConfigurationUI implementation that we are going to re-implement anyway.
+            return string.Empty;
+        }
+
+        public void ShowConfigurationUI(IntPtr hwndOwner)
+        {
+            var owner = NativeWindow.FromHandle(hwndOwner);
+            using (var dialog = new ConfigurationDialog(this))
+            {
+                dialog.Owner = Control.FromHandle(hwndOwner) as Form;
+                dialog.ShowDialog(owner);
+            }
         }
     }
 }

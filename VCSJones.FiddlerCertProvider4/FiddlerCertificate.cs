@@ -18,10 +18,15 @@ namespace VCSJones.FiddlerCertProvider4
         private readonly ConcurrentDictionary<string, X509Certificate2> _certificateCache = new ConcurrentDictionary<string, X509Certificate2>(StringComparer.InvariantCultureIgnoreCase);
         private readonly CertificateGenerator _generator = new CertificateGenerator();
         private X509Certificate2 _root;
-        private static PrivateKey _eePrivateKey;
+        private PrivateKey _eePrivateKey;
         private static readonly object _privateKeyLock = new object();
 
-        private static PrivateKey EEPrivateKey
+        static FiddlerCertificate()
+        {
+            _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
+        }
+
+        private PrivateKey EEPrivateKey
         {
             get
             {
@@ -46,14 +51,9 @@ namespace VCSJones.FiddlerCertProvider4
             }
         }
 
-        internal static void ForceEECertificateClear()
+        internal void ForceEECertificateClear()
         {
             _eePrivateKey = null;
-        }
-
-        static FiddlerCertificate()
-        {
-            _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
         }
 
 
@@ -216,7 +216,7 @@ namespace VCSJones.FiddlerCertProvider4
         public void ShowConfigurationUI(IntPtr hwndOwner)
         {
             var owner = NativeWindow.FromHandle(hwndOwner);
-            using (var dialog = new ConfigurationDialog(GetRootCertificate()))
+            using (var dialog = new ConfigurationDialog(this))
             {
                 dialog.Owner = Control.FromHandle(hwndOwner) as Form;
                 dialog.ShowDialog(owner);
