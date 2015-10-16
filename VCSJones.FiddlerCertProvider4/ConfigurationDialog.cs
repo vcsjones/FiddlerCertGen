@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using VCSJones.FiddlerCertGen;
 
@@ -28,7 +27,7 @@ namespace VCSJones.FiddlerCertProvider4
             exportInfo.cStores = 0;
             exportInfo.dwSize = (uint)Marshal.SizeOf(typeof(CRYPTUI_WIZ_EXPORT_INFO));
             exportInfo.dwSubjectType = CryptUIExportInfoSubjectType.CRYPTUI_WIZ_EXPORT_CERT_CONTEXT;
-            exportInfo.pwszExportFileName = null;
+            exportInfo.pwszExportFileName = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "FiddlerRootCert.pfx");
             exportInfo.rghStores = IntPtr.Zero;
             NativeMethods.CryptUIWizExport(CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_PRIVATE_KEY | CryptUIWizExportFlags.CRYPTUI_WIZ_EXPORT_NO_DELETE_PRIVATE_KEY, Handle, "Export Fiddler Root Certificate", ref exportInfo, IntPtr.Zero);
         }

@@ -40,6 +40,12 @@ namespace VCSJones.FiddlerCertGen
         {
             switch (hashAlgorithm)
             {
+                case HashAlgorithm.MD2:
+                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.MD2rsa;
+                    goto default;
+                case HashAlgorithm.MD5:
+                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.MD5rsa;
+                    goto default;
                 case HashAlgorithm.SHA1:
                     if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.SHA1rsa;
                     if (privateKey.AlgorithmGroup == AlgorithmGroup.ECDSA) return OIDs.SHA1ecdsa;
