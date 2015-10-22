@@ -56,6 +56,14 @@ namespace VCSJones.FiddlerCertProvider2
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
+            var wildCard = FiddlerApplication.Prefs.GetBoolPref("fiddler.certmaker.UseWildcards", true);
+            var certificate = wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
+            //FiddlerApplication.Log.LogFormat("Using certificate with serialnumber \"{0}\" for host \"{1}\"", certificate.SerialNumber, sHostname);
+            return certificate;
+        }
+
+        public X509Certificate2 GetCertificateForHostPlain(string sHostname)
+        {
             _rwl.AcquireReaderLock(LOCK_TIMEOUT);
             try
             {
@@ -97,6 +105,76 @@ namespace VCSJones.FiddlerCertProvider2
             {
                 _rwl.ReleaseReaderLock();
             }
+        }
+
+        public X509Certificate2 GetCertificateForHostWildCard(string sHostname)
+        {
+            string parentHostname;
+            if (IsSubDomain(sHostname, out parentHostname))
+            {
+                sHostname = parentHostname;
+            }
+            _rwl.AcquireReaderLock(LOCK_TIMEOUT);
+            try
+            {
+                var certExists = _certificateCache.ContainsKey(sHostname);
+                if (certExists)
+                {
+                    return _certificateCache[sHostname];
+                }
+                else
+                {
+                    HashAlgorithm signatureAlgorithm;
+                    lock (typeof(CertificateConfiguration))
+                    {
+                        signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                    }
+                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { sHostname, "*." + sHostname }, signatureAlgorithm: signatureAlgorithm);
+                    var lockCookie = default(LockCookie);
+                    try
+                    {
+                        lockCookie = _rwl.UpgradeToWriterLock(LOCK_TIMEOUT);
+                        if (!_certificateCache.ContainsKey(sHostname))
+                        {
+                            _certificateCache.Add(sHostname, cert);
+                        }
+                        else
+                        {
+                            return _certificateCache[sHostname];
+                        }
+                    }
+                    finally
+                    {
+                        _rwl.DowngradeFromWriterLock(ref lockCookie);
+                    }
+                    return cert;
+                }
+
+            }
+            finally
+            {
+                _rwl.ReleaseReaderLock();
+            }
+        }
+
+        public static bool IsSubDomain(string hostname, out string parentHostname)
+        {
+            var components = hostname.Split('.');
+            if (components.Length < 3)
+            {
+                parentHostname = null;
+                return false;
+            }
+            var tld = components[components.Length - 1];
+            var domain = new string[components.Length - 2];
+            Array.Copy(components, 1, domain, 0, components.Length - 2);
+            if (Array.TrueForAll(domain, p => p.Length <= 2))
+            {
+                parentHostname = null;
+                return false;
+            }
+            parentHostname = string.Join(".", domain) + "." + tld;
+            return true;
         }
 
         public X509Certificate2 GetRootCertificate()

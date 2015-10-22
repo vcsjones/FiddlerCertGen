@@ -59,15 +59,58 @@ namespace VCSJones.FiddlerCertProvider4
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
+            var wildCard = FiddlerApplication.Prefs.GetBoolPref("fiddler.certmaker.UseWildcards", true);
+            var certificate = wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
+            //FiddlerApplication.Log.LogFormat("Using certificate with serialnumber \"{0}\" for host \"{1}\"", certificate.SerialNumber, sHostname);
+            return certificate;
+        }
+
+        public X509Certificate2 GetCertificateForHostPlain(string sHostname)
+        {
             return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
                 HashAlgorithm signatureAlgorithm;
-                lock(typeof(CertificateConfiguration))
+                lock (typeof(CertificateConfiguration))
                 {
                     signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
                 }
                 return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname }, signatureAlgorithm: signatureAlgorithm);
             });
+        }
+
+        public X509Certificate2 GetCertificateForHostWildCard(string sHostname)
+        {
+            string parentHostname;
+            bool isSubDomain = IsSubDomain(sHostname, out parentHostname);
+            return _certificateCache.GetOrAdd(isSubDomain ? parentHostname : sHostname, hostname =>
+            {
+                HashAlgorithm signatureAlgorithm;
+                lock (typeof(CertificateConfiguration))
+                {
+                    signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                }
+                return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname, "*." + hostname }, signatureAlgorithm: signatureAlgorithm);
+            });
+        }
+
+        public static bool IsSubDomain(string hostname, out string parentHostname)
+        {
+            var components = hostname.Split('.');
+            if (components.Length < 3)
+            {
+                parentHostname = null;
+                return false;
+            }
+            var tld = components[components.Length - 1];
+            var domain = new string[components.Length - 2];
+            Array.Copy(components, 1, domain, 0, components.Length - 2);
+            if (Array.TrueForAll(domain, p => p.Length <= 2))
+            {
+                parentHostname = null;
+                return false;
+            }
+            parentHostname = string.Join(".", domain) + "." + tld;
+            return true;
         }
 
         public X509Certificate2 GetRootCertificate()
