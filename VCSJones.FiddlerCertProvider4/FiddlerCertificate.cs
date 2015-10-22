@@ -69,11 +69,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             return _certificateCache.GetOrAdd(sHostname, hostname =>
             {
-                HashAlgorithm signatureAlgorithm;
-                lock (typeof(CertificateConfiguration))
-                {
-                    signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
-                }
+                var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
                 return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname }, signatureAlgorithm: signatureAlgorithm);
             });
         }
@@ -84,11 +80,7 @@ namespace VCSJones.FiddlerCertProvider4
             bool isSubDomain = IsSubDomain(sHostname, out parentHostname);
             return _certificateCache.GetOrAdd(isSubDomain ? parentHostname : sHostname, hostname =>
             {
-                HashAlgorithm signatureAlgorithm;
-                lock (typeof(CertificateConfiguration))
-                {
-                    signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
-                }
+                var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
                 return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname, "*." + hostname }, signatureAlgorithm: signatureAlgorithm);
             });
         }
