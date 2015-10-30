@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fiddler;
@@ -59,10 +60,13 @@ namespace VCSJones.FiddlerCertProvider4
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
+            IPAddress addr;
+            if (IPAddress.TryParse(sHostname, out addr))
+            {
+                return GetCertificateForIPAddress(addr);
+            }
             var wildCard = FiddlerApplication.Prefs.GetBoolPref("fiddler.certmaker.UseWildcards", true);
-            var certificate = wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
-            //FiddlerApplication.Log.LogFormat("Using certificate with serialnumber \"{0}\" for host \"{1}\"", certificate.SerialNumber, sHostname);
-            return certificate;
+            return wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
         }
 
         public X509Certificate2 GetCertificateForHostPlain(string sHostname)
@@ -71,6 +75,15 @@ namespace VCSJones.FiddlerCertProvider4
             {
                 var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
                 return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new[] { hostname }, signatureAlgorithm: signatureAlgorithm);
+            });
+        }
+
+        public X509Certificate2 GetCertificateForIPAddress(IPAddress address)
+        {
+            return _certificateCache.GetOrAdd(address.ToString(), hostname =>
+            {
+                var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                return _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new string[0], signatureAlgorithm: signatureAlgorithm, ipAddresses: new[] {address});
             });
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fiddler;
@@ -56,10 +57,13 @@ namespace VCSJones.FiddlerCertProvider2
 
         public X509Certificate2 GetCertificateForHost(string sHostname)
         {
+            IPAddress addr;
+            if (IPAddress.TryParse(sHostname, out addr))
+            {
+                return GetCertificateForIPAddress(addr);
+            }
             var wildCard = FiddlerApplication.Prefs.GetBoolPref("fiddler.certmaker.UseWildcards", true);
-            var certificate = wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
-            //FiddlerApplication.Log.LogFormat("Using certificate with serialnumber \"{0}\" for host \"{1}\"", certificate.SerialNumber, sHostname);
-            return certificate;
+            return wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
         }
 
         public X509Certificate2 GetCertificateForHostPlain(string sHostname)
@@ -87,6 +91,48 @@ namespace VCSJones.FiddlerCertProvider2
                         else
                         {
                             return _certificateCache[sHostname];
+                        }
+                    }
+                    finally
+                    {
+                        _rwl.DowngradeFromWriterLock(ref lockCookie);
+                    }
+                    return cert;
+                }
+
+            }
+            finally
+            {
+                _rwl.ReleaseReaderLock();
+            }
+        }
+
+        public X509Certificate2 GetCertificateForIPAddress(IPAddress address)
+        {
+            var addressStr = address.ToString();
+            _rwl.AcquireReaderLock(LOCK_TIMEOUT);
+            try
+            {
+                var certExists = _certificateCache.ContainsKey(addressStr);
+                if (certExists)
+                {
+                    return _certificateCache[addressStr];
+                }
+                else
+                {
+                    var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
+                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new string[0], signatureAlgorithm: signatureAlgorithm, ipAddresses: new[] {address});
+                    var lockCookie = default(LockCookie);
+                    try
+                    {
+                        lockCookie = _rwl.UpgradeToWriterLock(LOCK_TIMEOUT);
+                        if (!_certificateCache.ContainsKey(addressStr))
+                        {
+                            _certificateCache.Add(addressStr, cert);
+                        }
+                        else
+                        {
+                            return _certificateCache[addressStr];
                         }
                     }
                     finally

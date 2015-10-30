@@ -34,19 +34,19 @@ namespace VCSJones.FiddlerCertGen
                         case CertAltNameChoice.CERT_ALT_NAME_DNS_NAME:
                             altName.Value = new CERT_ALT_NAME_ENTRY_UNION
                             {
-                                pwszDNSName = Marshal.StringToHGlobalUni(altNames[index].Value)
+                                pwszDNSName = Marshal.StringToHGlobalUni((string)altNames[index].Value)
                             };
                             unionValues.Add(altName.Value.pwszDNSName);
                             break;
                         case CertAltNameChoice.CERT_ALT_NAME_URL:
                             altName.Value = new CERT_ALT_NAME_ENTRY_UNION
                             {
-                                pwszURL = Marshal.StringToHGlobalUni(altNames[index].Value)
+                                pwszURL = Marshal.StringToHGlobalUni((string)altNames[index].Value)
                             };
                             unionValues.Add(altName.Value.pwszURL);
                             break;
                         case CertAltNameChoice.CERT_ALT_NAME_IP_ADDRESS:
-                            var ip = IPAddress.Parse(altNames[index].Value);
+                            var ip = (IPAddress)altNames[index].Value;
                             var addressBytes = ip.GetAddressBytes();
                             var ipBytes = Marshal.AllocHGlobal(addressBytes.Length);
                             Marshal.Copy(addressBytes, 0, ipBytes, addressBytes.Length);
