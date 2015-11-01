@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Fiddler;
@@ -60,7 +61,7 @@ namespace VCSJones.FiddlerCertProvider2
             IPAddress addr;
             if (IPAddress.TryParse(sHostname, out addr))
             {
-                return GetCertificateForIPAddress(addr);
+                return GetCertificateForIPAddress(addr, sHostname);
             }
             var wildCard = FiddlerApplication.Prefs.GetBoolPref("fiddler.certmaker.UseWildcards", true);
             return wildCard ? GetCertificateForHostWildCard(sHostname) : GetCertificateForHostPlain(sHostname);
@@ -107,7 +108,7 @@ namespace VCSJones.FiddlerCertProvider2
             }
         }
 
-        public X509Certificate2 GetCertificateForIPAddress(IPAddress address)
+        public X509Certificate2 GetCertificateForIPAddress(IPAddress address, string hostname)
         {
             var addressStr = address.ToString();
             _rwl.AcquireReaderLock(LOCK_TIMEOUT);
@@ -120,8 +121,21 @@ namespace VCSJones.FiddlerCertProvider2
                 }
                 else
                 {
+                    /*
+                    Internet Explorer has weird handling of IPv6 addresses for certificates.
+                    It appears to do a string match instead of a binary match on the address's octets.
+                    It also seems to require the bracket notation in some circumstances when using dnsName.
+                    */
+                    var isIPv6 = address.AddressFamily == AddressFamily.InterNetworkV6;
                     var signatureAlgorithm = CertificateConfiguration.EECertificateHashAlgorithm;
-                    var cert = _generator.GenerateCertificate(GetRootCertificate(), EEPrivateKey, new X500DistinguishedName(FIDDLER_EE_DN), new string[0], signatureAlgorithm: signatureAlgorithm, ipAddresses: new[] {address});
+                    var cert = _generator.GenerateCertificate(
+                        issuingCertificate: GetRootCertificate(),
+                        privateKey: EEPrivateKey,
+                        dn: new X500DistinguishedName(FIDDLER_EE_DN),
+                        dnsNames: isIPv6 ? new[] { addressStr, hostname } : new[] { addressStr },
+                        signatureAlgorithm: signatureAlgorithm,
+                        ipAddresses: new[] { address }
+                    );
                     var lockCookie = default(LockCookie);
                     try
                     {
