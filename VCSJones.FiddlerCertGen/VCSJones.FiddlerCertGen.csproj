@@ -95,11 +95,13 @@
     <Compile Include="Interop\SECURITY_STATUS.cs" />
     <Compile Include="ProviderType.cs" />
     <Compile Include="PublicKeyInfo.cs" />
-    <Compile Include="SYSTEMTIME.cs" />
-    <Compile Include="X509AlternativeName.cs" />
-    <Compile Include="X509AlternativeNameType.cs" />
-    <Compile Include="X509AuthorityKeyIdentifierExtension.cs" />
-    <Compile Include="X509SubjectAlternativeNameExtension.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VCSJones.FidderCertGenFS\VCSJones.FiddlerCertGenFS.fsproj">
+      <Project>{3f7e9b37-783b-4328-bda0-1755016a8c38}</Project>
+      <Name>VCSJones.FiddlerCertGenFS</Name>
+      <Aliases>fs</Aliases>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

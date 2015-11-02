@@ -1,10 +1,13 @@
-﻿using System;
+﻿extern alias fs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using fs::Microsoft.FSharp.Core;
+using fs::VCSJones.FiddlerCertGen;
 using VCSJones.FiddlerCertGen.Interop;
 
 namespace VCSJones.FiddlerCertGen
@@ -69,11 +72,11 @@ namespace VCSJones.FiddlerCertGen
             var list = new List<X509AlternativeName>();
             foreach (var dnsName in dnsNames)
             {
-                list.Add(new X509AlternativeName { Type = X509AlternativeNameType.DnsName, Value = dnsName });
+                list.Add(X509AlternativeName.NewDNSName(dnsName));
             }
             foreach (var ipAddress in ipAddresses)
             {
-                list.Add(new X509AlternativeName { Type = X509AlternativeNameType.IpAddress, Value = ipAddress });
+                list.Add(X509AlternativeName.NewIPAddress(ipAddress));
             }
             return list;
         }
@@ -127,7 +130,7 @@ namespace VCSJones.FiddlerCertGen
                                     {
                                         var issuingKeyId = sha1.ComputeHash(signingPublicKey.Key);
                                         extensions.Add(new X509SubjectKeyIdentifierExtension(sha1.ComputeHash(publicKey.Key), false));
-                                        extensions.Add(new X509AuthorityKeyIdentifierExtension(issuingKeyId, null));
+                                        extensions.Add(new X509AuthorityKeyIdentifierExtension(new FSharpOption<byte[]>(issuingKeyId), FSharpOption<byte[]>.None));
                                     }
                                 }
                                 var certInfo = new CERT_INFO();
@@ -207,7 +210,7 @@ namespace VCSJones.FiddlerCertGen
                                 {
                                     var pubKeyHash = sha1.ComputeHash(publicKey.Key);
                                     extensions.Add(new X509SubjectKeyIdentifierExtension(pubKeyHash, false));
-                                    extensions.Add(new X509AuthorityKeyIdentifierExtension(pubKeyHash, null));
+                                    extensions.Add(new X509AuthorityKeyIdentifierExtension(FSharpOption<byte[]>.Some(pubKeyHash), FSharpOption<byte[]>.None));
                                 }
                             }
                         }

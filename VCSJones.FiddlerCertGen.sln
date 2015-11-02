@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCSJones.FiddlerCertProvide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCSJones.FiddlerCertProvider2", "VCSJones.FiddlerCertProvider2\VCSJones.FiddlerCertProvider2.csproj", "{1BDF2401-22CE-4F5E-BFAF-B1C18E3990C1}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VCSJones.FiddlerCertGenFS", "VCSJones.FidderCertGenFS\VCSJones.FiddlerCertGenFS.fsproj", "{3F7E9B37-783B-4328-BDA0-1755016A8C38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1BDF2401-22CE-4F5E-BFAF-B1C18E3990C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BDF2401-22CE-4F5E-BFAF-B1C18E3990C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BDF2401-22CE-4F5E-BFAF-B1C18E3990C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F7E9B37-783B-4328-BDA0-1755016A8C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7E9B37-783B-4328-BDA0-1755016A8C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F7E9B37-783B-4328-BDA0-1755016A8C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7E9B37-783B-4328-BDA0-1755016A8C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
