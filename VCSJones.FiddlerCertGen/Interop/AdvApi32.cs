@@ -1,4 +1,6 @@
-﻿using System;
+﻿extern alias fs;
+using System;
+using fs::VCSJones.FiddlerCertGen;
 using System.Runtime.InteropServices;
 
 namespace VCSJones.FiddlerCertGen.Interop

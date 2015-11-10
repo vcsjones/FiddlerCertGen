@@ -40,6 +40,7 @@ type internal CngExportPolicy =
     | NCRYPT_ALLOW_PLAINTEXT_ARCHIVING_FLAG = 0x00000008u
 
 type internal CryptAcquireContextFlags =
+    | NONE = 0u
     | CRYPT_VERIFYCONTEXT = 0xF0000000u
     | CRYPT_NEWKEYSET = 0x00000008u
     | CRYPT_DELETEKEYSET = 0x00000010u
@@ -102,3 +103,36 @@ type internal AcquirePrivateKeyFlags =
     | CRYPT_ACQUIRE_ALLOW_NCRYPT_KEY_FLAG = 0x00010000u
     | CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG = 0x00020000u
     | CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG = 0x00040000u
+
+[<type: System.FlagsAttribute>]
+type KeySpec =
+    | NONE = 0u
+    | AT_KEYEXCHANGE = 1u
+    | AT_SIGNATURE = 2u
+    | NCRYPT = 0xFFFFFFFFu
+
+type internal NCryptCreatePersistedKeyFlags =
+    | NONE = 0u
+    | NCRYPT_MACHINE_KEY_FLAG = 0x00000020u
+    | NCRYPT_OVERWRITE_KEY_FLAG = 0x00000080u
+
+type internal ProviderType =
+    | CNG = 0u
+    | PROV_RSA_FULL = 1u
+    | PROV_RSA_SIG = 2u
+    | PROV_DSS = 3u
+    | PROV_FORTEZZA = 4u
+    | PROV_MS_EXCHANGE = 5u
+    | PROV_SSL = 6u
+    | PROV_RSA_SCHANNEL = 12u
+    | PROV_DSS_DH = 13u
+    | PROV_EC_ECDSA_SIG = 14u
+    | PROV_EC_ECNRA_SIG = 15u
+    | PROV_EC_ECDSA_FULL = 16u
+    | PROV_EC_ECNRA_FULL = 17u
+    | PROV_DH_SCHANNEL = 18u
+    | PROV_SPYRUS_LYNKS = 20u
+    | PROV_RNG = 21u
+    | PROV_INTEL_SEC = 22u
+    | PROV_REPLACE_OWF = 23u
+    | PROV_RSA_AES = 24u

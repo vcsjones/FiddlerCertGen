@@ -32,12 +32,39 @@ type internal GlobalBufferSafeHandle =
             result.SetHandle(0n)
             result
 
-    static member FromHandle(handle : nativeint) =
-        let result = new GlobalBufferSafeHandle()
-        result.SetHandle(handle)
-        result
+    static member Allocate(size : int32) =
+        let buffer = System.Runtime.InteropServices.Marshal.AllocHGlobal(size)
+        GlobalBufferSafeHandle.FromHandle(buffer)
+
+    static member FromHandle(ptr : nativeint) =
+        let handle = new GlobalBufferSafeHandle(true)
+        handle.SetHandle(ptr)
+        handle
 
     override this.ReleaseHandle() =
         System.Runtime.InteropServices.Marshal.FreeHGlobal(this.handle)
         true
 
+
+type internal LibrarySafeHandle =
+    inherit SafeHandleZeroOrMinusOneIsInvalid
+
+    new() = {inherit SafeHandleZeroOrMinusOneIsInvalid(true)}
+    new(ownsHandle) = {inherit SafeHandleZeroOrMinusOneIsInvalid(ownsHandle)}
+
+    override this.ReleaseHandle() = FreeLibrary(this.handle)
+
+type internal CryptKeySafeHandle =
+    inherit SafeHandleZeroOrMinusOneIsInvalid
+
+    new() = {inherit SafeHandleZeroOrMinusOneIsInvalid(true)}
+    new(ownsHandle) = {inherit SafeHandleZeroOrMinusOneIsInvalid(ownsHandle)}
+
+    static member Null
+        with get () =
+            let result = new CryptKeySafeHandle()
+            result.SetHandle(0n)
+            result
+
+
+    override this.ReleaseHandle() = CryptDestroyKey(this.handle)

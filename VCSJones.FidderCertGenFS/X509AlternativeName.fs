@@ -6,12 +6,13 @@ open System.Security.Cryptography.X509Certificates
 
 type X509AlternativeName =
     | DNSName of string
-    | IPAddress of System.Net.IPAddress
+    | Address of System.Net.IPAddress
     | Url of string
 
 
 module internal X509AlternativeNameEncoder =
     let encodeExtensions(altNames : X509AlternativeName list) : byte array =
+        let w = {name = "a"}
         let mutable altName = CERT_ALT_NAME_INFO()
         altName.cAltEntry <- altNames |> List.length |> uint32
         let rec altNameEntry (altNames : X509AlternativeName list) (entries : (CERT_ALT_NAME_ENTRY * nativeint) list) =
@@ -25,7 +26,7 @@ module internal X509AlternativeNameEncoder =
                                     entry.dwAltNameChoice <- CertAltNameChoice.CERT_ALT_NAME_DNS_NAME
                                     entry.value <- value
                                     altNameEntry tail (entries |> List.append [(entry, value.pwszDNSName)])
-                                | IPAddress(ipAddress) ->
+                                | Address(ipAddress) ->
                                     let addressBytes = ipAddress.GetAddressBytes()
                                     let nativeBytes = Marshal.AllocHGlobal(addressBytes.Length)
                                     Marshal.Copy(addressBytes, 0, nativeBytes, addressBytes.Length)
@@ -43,9 +44,9 @@ module internal X509AlternativeNameEncoder =
         let entries = altNameList |> List.map fst |> Array.ofList
         let handle = GCHandle.Alloc(entries, GCHandleType.Pinned)
         altName.rgAltEntry <- handle.AddrOfPinnedObject()
-        let mutable buffer : LocalBufferSafeHandle = LocalBufferSafeHandle.Null
+        let mutable buffer = LocalBufferSafeHandle.Null
         let mutable dataSize : uint32 = 0u
-        if not <| Crypto32.CryptEncodeObjectExAltnerateName(EncodingType.X509_ASN_ENCODING, OIDs.szOID_SUBJECT_ALT_NAME2, &altName, 0x8000u, 0n, &buffer, &dataSize) then
+        if not <| ExternInterop.CryptEncodeObjectExAltnerateName(EncodingType.X509_ASN_ENCODING, OIDs.szOID_SUBJECT_ALT_NAME2, &altName, 0x8000u, 0n, &buffer, &dataSize) then
             invalidOp("Failed to encode object.")
         try
             using(buffer) (fun _ ->

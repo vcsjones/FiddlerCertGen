@@ -2,6 +2,8 @@
 
 namespace VCSJones.FiddlerCertProvider4
 {
+    extern alias fs;
+
     public static class CertificateConfiguration
     {
         private const string RootCertificateHashAlgorithmPreferenceKey = "fiddler.cng.root-hash-algorithm";
@@ -15,7 +17,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             get
             {
-                var defaultAlgorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P384 : Algorithm.RSA;
+                var defaultAlgorithm = fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P384 : Algorithm.RSA;
                 Algorithm result;
                 return Algorithm.TryParse(Fiddler.FiddlerApplication.Prefs.GetStringPref(RootCertificateAlgorithmPreferenceKey, defaultAlgorithm.ToString()), out result) ? result : defaultAlgorithm;
             }
@@ -29,7 +31,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             get
             {
-                var defaultAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA384 : HashAlgorithm.SHA1;
+                var defaultAlgorithm = fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport ? HashAlgorithm.SHA384 : HashAlgorithm.SHA1;
                 return (HashAlgorithm)Fiddler.FiddlerApplication.Prefs.GetInt32Pref(RootCertificateHashAlgorithmPreferenceKey, (int)defaultAlgorithm);
             }
             set
@@ -42,7 +44,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             get
             {
-                var defaultAlgorithm = PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
+                var defaultAlgorithm = fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport ? HashAlgorithm.SHA256 : HashAlgorithm.SHA1;
                 return (HashAlgorithm)Fiddler.FiddlerApplication.Prefs.GetInt32Pref(EECertificateHashAlgorithmPreferenceKey, (int)defaultAlgorithm);
             }
             set
@@ -55,7 +57,7 @@ namespace VCSJones.FiddlerCertProvider4
         {
             get
             {
-                var defaultAlgorithm = PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
+                var defaultAlgorithm = fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport ? Algorithm.ECDSA_P256 : Algorithm.RSA;
                 Algorithm result;
                 return Algorithm.TryParse(Fiddler.FiddlerApplication.Prefs.GetStringPref(EECertificateAlgorithmPreferenceKey, defaultAlgorithm.ToString()), out result) ? result : defaultAlgorithm;
             }

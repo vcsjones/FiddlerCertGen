@@ -1,4 +1,5 @@
-﻿using System;
+﻿extern alias fs;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -7,6 +8,9 @@ using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
 using System.Windows.Forms;
+using KeyProviderBase = fs::VCSJones.FiddlerCertGen.KeyProviderBase;
+using KeyUsage = fs::VCSJones.FiddlerCertGen.KeyUsage;
+using PlatformSupport = fs::VCSJones.FiddlerCertGen.PlatformSupport;
 
 namespace VCSJones.FiddlerCertProvider2
 {

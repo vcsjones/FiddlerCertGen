@@ -35,28 +35,17 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithm.cs" />
-    <Compile Include="AlgorithmGroup.cs" />
-    <Compile Include="CapiKeyProvider.cs" />
     <Compile Include="CertificateGenerator.cs" />
-    <Compile Include="CngKeyProvider.cs" />
     <Compile Include="CryptKeyProvInfoFlags.cs" />
     <Compile Include="CryptKeySafeHandle.cs" />
     <Compile Include="FileTimeHelper.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="HashAlgorithm.cs" />
-    <Compile Include="Interop\AcquirePrivateKeyFlags.cs" />
     <Compile Include="Interop\AdvApi32.cs" />
     <Compile Include="Interop\ALG_ID.cs" />
     <Compile Include="Interop\ALG_CLASS.cs" />
     <Compile Include="Interop\ALG_SID.cs" />
     <Compile Include="Interop\ALG_TYPE.cs" />
-    <Compile Include="Interop\CertAltNameChoice.cs" />
-    <Compile Include="Interop\CertificateVersion.cs" />
-    <Compile Include="Interop\CERT_ALT_NAME_ENTRY.cs" />
-    <Compile Include="Interop\CERT_ALT_NAME_ENTRY_UNION.cs" />
-    <Compile Include="Interop\CERT_ALT_NAME_INFO.cs" />
-    <Compile Include="Interop\CERT_AUTHORITY_KEY_ID2_INFO.cs" />
     <Compile Include="Interop\CERT_EXTENSION.cs" />
     <Compile Include="Interop\CERT_EXTENSIONS.cs" />
     <Compile Include="Interop\CERT_INFO.cs" />
@@ -65,36 +54,23 @@
     <Compile Include="Interop\CryptAcquireContextFlags.cs" />
     <Compile Include="Interop\CryptBinaryStringFlags.cs" />
     <Compile Include="Interop\CryptGenKeyFlags.cs" />
-    <Compile Include="Interop\CRYPTOAPI_BLOB.cs" />
-    <Compile Include="Interop\CRYPT_ALGORITHM_IDENTIFIER.cs" />
     <Compile Include="Interop\CRYPT_BIT_BLOB.cs" />
     <Compile Include="Interop\CRYPT_KEY_PROV_INFO.cs" />
     <Compile Include="Interop\CRYPT_OBJID_BLOB.cs" />
     <Compile Include="Interop\EncodingType.cs" />
-    <Compile Include="Interop\LocalBufferSafeHandle.cs" />
     <Compile Include="Interop\NATIVE_CRYPTOAPI_BLOB.cs" />
     <Compile Include="Interop\NCryptPropertyReader.cs" />
     <Compile Include="Interop\NCryptPropertyWriter.cs" />
-    <Compile Include="Interop\NCryptStorageProvider.cs" />
     <Compile Include="Interop\SelfSignFlags.cs" />
-    <Compile Include="KeyProviderBase.cs" />
     <Compile Include="KeyProviders.cs" />
-    <Compile Include="KeyUsage.cs" />
-    <Compile Include="LibrarySafeHandle.cs" />
     <Compile Include="Interop\Crypt32.cs" />
     <Compile Include="Interop\Kernel32.cs" />
     <Compile Include="Interop\LoadLibraryFlags.cs" />
     <Compile Include="MarshalX509Extension.cs" />
     <Compile Include="MarshalX509ExtensionCollection.cs" />
-    <Compile Include="NCryptKeyOrCryptProviderSafeHandle.cs" />
     <Compile Include="NCryptStorageProviderSafeHandle.cs" />
-    <Compile Include="OIDs.cs" />
-    <Compile Include="PlatformSupport.cs" />
-    <Compile Include="PrivateKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interop\SECURITY_STATUS.cs" />
-    <Compile Include="ProviderType.cs" />
-    <Compile Include="PublicKeyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VCSJones.FidderCertGenFS\VCSJones.FiddlerCertGenFS.fsproj">

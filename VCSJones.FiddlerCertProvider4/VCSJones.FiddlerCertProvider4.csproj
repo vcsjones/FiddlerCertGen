@@ -57,6 +57,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VCSJones.FidderCertGenFS\VCSJones.FiddlerCertGenFS.fsproj">
+      <Project>{3f7e9b37-783b-4328-bda0-1755016a8c38}</Project>
+      <Name>VCSJones.FiddlerCertGenFS</Name>
+      <Aliases>fs</Aliases>
+    </ProjectReference>
     <ProjectReference Include="..\VCSJones.FiddlerCertGen\VCSJones.FiddlerCertGen.csproj">
       <Project>{e7d637a4-aa2b-4f0a-9b35-a85f3c782da2}</Project>
       <Name>VCSJones.FiddlerCertGen</Name>

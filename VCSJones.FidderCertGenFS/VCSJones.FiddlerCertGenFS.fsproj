@@ -46,15 +46,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Operators.fs" />
+    <Compile Include="Constants.fs" />
     <Compile Include="InteropFlags.fs" />
     <Compile Include="InteropStructures.fs" />
     <Compile Include="InteropMemoryFree.fs" />
-    <Compile Include="LocalBufferSafeHandle.fs" />
+    <Compile Include="SafeHandles.fs" />
     <Compile Include="InteropSYSTEMTIME.fs" />
-    <Compile Include="Crypto32.fs" />
+    <Compile Include="PlatformSupport.fs" />
+    <Compile Include="NCryptHandles.fs" />
+    <Compile Include="ExternInterop.fs" />
     <Compile Include="OIDs.fs" />
+    <Compile Include="KeyUsage.fs" />
+    <Compile Include="Algorithm.fs" />
+    <Compile Include="NCryptProperties.fs" />
+    <Compile Include="NCryptStorageProvider.fsi" />
+    <Compile Include="NCryptStorageProvider.fs" />
+    <Compile Include="KeyProviderBase.fs" />
     <Compile Include="X509AlternativeName.fs" />
     <Compile Include="X509AuthorityKeyIdentifierExtension.fs" />
+    <Compile Include="PublicKeyInfo.fsi" />
+    <Compile Include="PublicKeyInfo.fs" />
+    <Compile Include="PrivateKey.fs" />
+    <Compile Include="HashAlgorithm.fs" />
+    <Compile Include="CertificateGenerator.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

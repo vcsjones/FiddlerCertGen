@@ -1,3 +1,5 @@
+extern alias fs;
+using fs::VCSJones.FiddlerCertGen;
 using System;
 using System.Runtime.InteropServices;
 

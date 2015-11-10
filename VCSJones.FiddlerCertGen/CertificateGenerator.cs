@@ -6,9 +6,9 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using fs::Microsoft.FSharp.Core;
 using fs::VCSJones.FiddlerCertGen;
 using VCSJones.FiddlerCertGen.Interop;
+using fs::Microsoft.FSharp.Core;
 
 namespace VCSJones.FiddlerCertGen
 {
@@ -38,47 +38,6 @@ namespace VCSJones.FiddlerCertGen
             var bytes = new byte[cbData];
             Marshal.Copy(pData, bytes, 0, bytes.Length);
             return bytes;
-        }
-
-        private static string HashAlgorithmToSignatureAlgorithm(PrivateKey privateKey, HashAlgorithm hashAlgorithm)
-        {
-            switch (hashAlgorithm)
-            {
-                case HashAlgorithm.MD2:
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.MD2rsa;
-                    goto default;
-                case HashAlgorithm.MD5:
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.MD5rsa;
-                    goto default;
-                case HashAlgorithm.SHA1:
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.SHA1rsa;
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.ECDSA) return OIDs.SHA1ecdsa;
-                    goto default;
-                case HashAlgorithm.SHA256:
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.SHA256rsa;
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.ECDSA) return OIDs.SHA256ecdsa;
-                    goto default;
-                case HashAlgorithm.SHA384:
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.RSA) return OIDs.SHA384rsa;
-                    if (privateKey.AlgorithmGroup == AlgorithmGroup.ECDSA) return OIDs.SHA384ecdsa;
-                    goto default;
-                default:
-                    throw new NotSupportedException();
-            }
-        }
-
-        private static List<X509AlternativeName> DnsAltNamesFromArray(string[] dnsNames, IPAddress[] ipAddresses)
-        {
-            var list = new List<X509AlternativeName>();
-            foreach (var dnsName in dnsNames)
-            {
-                list.Add(X509AlternativeName.NewDNSName(dnsName));
-            }
-            foreach (var ipAddress in ipAddresses)
-            {
-                list.Add(X509AlternativeName.NewIPAddress(ipAddress));
-            }
-            return list;
         }
 
         public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, IPAddress[] ipAddresses = null, HashAlgorithm? signatureAlgorithm = null, DateTime? notBefore = null, DateTime? notAfter = null)

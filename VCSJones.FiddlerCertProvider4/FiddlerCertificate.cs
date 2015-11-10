@@ -10,6 +10,8 @@ using System.Windows.Forms;
 
 namespace VCSJones.FiddlerCertProvider4
 {
+    extern alias fs;
+
     public class FiddlerCertificate : ICertificateProvider3, ICertificateProviderInfo
     {
         private static readonly KeyProviderBase _keyProviderEngine;
@@ -25,7 +27,7 @@ namespace VCSJones.FiddlerCertProvider4
 
         static FiddlerCertificate()
         {
-            _keyProviderEngine = PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
+            _keyProviderEngine = fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport ? KeyProviders.CNG : KeyProviders.CAPI;
         }
 
         private PrivateKey EEPrivateKey
@@ -43,7 +45,7 @@ namespace VCSJones.FiddlerCertProvider4
                                 var algorithm = CertificateConfiguration.EECertificateAlgorithm;
                                 var keySize = CertificateConfiguration.EERsaKeySize;
                                 var keyName = $"{FIDDLER_EE_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name}_4";
-                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.KeyExchange, keySize: keySize);
+                                var key = PrivateKey.OpenExisting(_keyProviderEngine, keyName) ?? PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, fs::VCSJones.FiddlerCertGen.KeyUsage.KeyExchange, keySize: keySize);
                                 _eePrivateKey = key;
                             }
                         }
@@ -172,7 +174,7 @@ namespace VCSJones.FiddlerCertProvider4
                     var signatureAlgorithm = CertificateConfiguration.RootCertificateHashAlgorithm;
                     var keySize = CertificateConfiguration.RootRsaKeySize;
                     var keyName = $"{FIDDLER_ROOT_PRIVATE_KEY_NAME}_{algorithm}_{keySize}_{_keyProviderEngine.Name};";
-                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, KeyUsage.Signature, overwrite: true, keySize: keySize))
+                    using (var key = PrivateKey.CreateNew(_keyProviderEngine, keyName, algorithm, fs::VCSJones.FiddlerCertGen.KeyUsage.Signature, overwrite: true, keySize: keySize))
                     {
                         _root = _generator.GenerateCertificateAuthority(key, new X500DistinguishedName(FIDDLER_ROOT_DN), signatureAlgorithm);
                         return true;

@@ -1,4 +1,8 @@
-﻿namespace VCSJones.FiddlerCertGen
+﻿extern alias fs;
+
+using fs::VCSJones.FiddlerCertGen;
+
+namespace VCSJones.FiddlerCertGen
 {
     public static class KeyProviders
     {

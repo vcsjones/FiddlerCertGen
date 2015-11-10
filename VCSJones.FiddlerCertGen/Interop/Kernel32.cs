@@ -1,5 +1,7 @@
-﻿using System;
+﻿extern alias fs;
+using System;
 using System.Runtime.InteropServices;
+using fs::VCSJones.FiddlerCertGen;
 
 namespace VCSJones.FiddlerCertGen.Interop
 {
@@ -118,15 +120,6 @@ namespace VCSJones.FiddlerCertGen.Interop
                 [param: In, MarshalAs(UnmanagedType.U4)] KeySpec dwLegacyKeySpec,
                 [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags
             );
-    }
-
-    [type: Flags]
-    public enum KeySpec : uint
-    {
-        NONE = 0,
-        AT_KEYEXCHANGE = 1,
-        AT_SIGNATURE = 2,
-        NCRYPT = 0xFFFFFFFF
     }
 
     internal enum NCryptCreatePersistedKeyFlags : uint

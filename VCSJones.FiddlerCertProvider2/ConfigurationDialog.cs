@@ -5,6 +5,8 @@ using VCSJones.FiddlerCertGen;
 
 namespace VCSJones.FiddlerCertProvider2
 {
+    extern alias fs;
+
     public partial class ConfigurationDialog : Form
     {
         private readonly FiddlerCertificate _certificateProvider;
@@ -39,7 +41,7 @@ namespace VCSJones.FiddlerCertProvider2
             eeHashAlgorithm.Items.Add(HashAlgorithm.SHA1);
             rootAlgorithm.Items.Add(Algorithm.RSA);
             eeAlgorithm.Items.Add(Algorithm.RSA);
-            if (PlatformSupport.HasCngSupport)
+            if (fs::VCSJones.FiddlerCertGen.PlatformSupport.HasCngSupport)
             {
                 eeAlgorithm.Items.Add(Algorithm.ECDSA_P256);
                 eeAlgorithm.Items.Add(Algorithm.ECDSA_P384);
