@@ -88,6 +88,7 @@ namespace VCSJones.FiddlerCertGen
             var serialNumber = new byte[16];
             var rng = RandomNumberGenerator.Create();
             rng.GetNonZeroBytes(serialNumber);
+            serialNumber[15] &= 0x7F;
             fixed (byte* dnPtr = dn.RawData, issuerDnPtr = issuingCertificate.SubjectName.RawData, serialNumberPtr = serialNumber)
             {
                 try
