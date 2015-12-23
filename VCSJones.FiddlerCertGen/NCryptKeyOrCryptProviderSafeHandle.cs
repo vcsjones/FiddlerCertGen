@@ -1,4 +1,5 @@
-﻿using VCSJones.FiddlerCertGen.Interop;
+﻿using System;
+using VCSJones.FiddlerCertGen.Interop;
 
 namespace VCSJones.FiddlerCertGen
 {
@@ -29,6 +30,17 @@ namespace VCSJones.FiddlerCertGen
             else
             {
                 return AdvApi32.CryptReleaseContext(handle, 0u);
+            }
+        }
+
+        public static NCryptKeyOrCryptProviderSafeHandle Null
+        {
+            get
+            {
+                var safeHandle = new NCryptKeyOrCryptProviderSafeHandle(true);
+                safeHandle.SetCallerFree(false);
+                safeHandle.SetHandle(IntPtr.Zero);
+                return safeHandle;
             }
         }
 

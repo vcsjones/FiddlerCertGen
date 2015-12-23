@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using VCSJones.FiddlerCertGen.Interop;
 
 namespace VCSJones.FiddlerCertGen
@@ -61,6 +62,20 @@ namespace VCSJones.FiddlerCertGen
                 return null;
             }
             throw new InvalidOperationException("Failed to open key.");
+        }
+
+        internal override byte[] Export(NCryptKeyOrCryptProviderSafeHandle handle)
+        {
+            uint size;
+            var result = NCrypt.NCryptExportKey(handle, NCryptKeyOrCryptProviderSafeHandle.Null, "", IntPtr.Zero, LocalBufferSafeHandle.Null, 0, out size, 0u);
+            if (result != SECURITY_STATUS.ERROR_SUCCESS)
+            {
+                throw new InvalidOperationException();
+            }
+            var buffer = LocalBufferSafeHandle.Alloc(size);
+            uint finalSize;
+            result = NCrypt.NCryptExportKey(handle, NCryptKeyOrCryptProviderSafeHandle.Null, "", IntPtr.Zero, buffer, size, out finalSize, 0u);
+            return null;
         }
     }
 }

@@ -77,6 +77,8 @@ namespace VCSJones.FiddlerCertGen
             throw new Win32Exception(Marshal.GetLastWin32Error());
         }
 
+        public byte[] Export() => _keyProvider.Export(_handle);
+
         public void Dispose()
         {
             _handle.Dispose();

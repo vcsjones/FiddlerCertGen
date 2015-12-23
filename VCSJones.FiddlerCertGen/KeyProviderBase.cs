@@ -10,5 +10,6 @@ namespace VCSJones.FiddlerCertGen
         internal abstract string GetAlgorithmGroup(NCryptKeyOrCryptProviderSafeHandle handle);
         internal abstract NCryptKeyOrCryptProviderSafeHandle OpenExisting(string keyName, out KeySpec keySpec);
         public abstract string Name { get; }
+        internal abstract byte[] Export(NCryptKeyOrCryptProviderSafeHandle handle);
     }
 }

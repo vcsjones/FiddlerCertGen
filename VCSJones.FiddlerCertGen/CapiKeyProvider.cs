@@ -11,6 +11,10 @@ namespace VCSJones.FiddlerCertGen
     {
         internal static CapiKeyProvider Instance { get; } = new CapiKeyProvider();
         public override string Name { get; } = "CAPI";
+        internal override byte[] Export(NCryptKeyOrCryptProviderSafeHandle handle)
+        {
+            throw new NotImplementedException();
+        }
 
 
         private static readonly string _providerName;
@@ -51,7 +55,7 @@ namespace VCSJones.FiddlerCertGen
             }
             var flags = CryptGenKeyFlags.CRYPT_EXPORTABLE;
             var keySizeFlags = ((uint)keySize & 0xFFFFU) << 16;
-            var genKeyFlags = ((ushort)flags) | keySizeFlags;
+            var genKeyFlags = (ushort)flags | keySizeFlags;
             CryptKeySafeHandle key;
             KeySpec algorithmKeySpec;
             switch (keyUsage)
