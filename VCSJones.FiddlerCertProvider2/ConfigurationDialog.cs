@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using VCSJones.FiddlerCertGen;
+using VCSJones.FiddlerCertProvider;
 
 namespace VCSJones.FiddlerCertProvider2
 {

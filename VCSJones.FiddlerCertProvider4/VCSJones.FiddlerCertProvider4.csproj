@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fiddler">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
+      <HintPath>\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -44,14 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CertificateConfiguration.cs" />
     <Compile Include="ConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ConfigurationDialog.Designer.cs">
       <DependentUpon>ConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="CryptUI.cs" />
     <Compile Include="FiddlerCertificate.cs" />
     <Compile Include="FiddlerCertProviderExtension4.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,6 +65,7 @@
       <DependentUpon>ConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <Import Project="..\VCSJones.FiddlerCertProvider\VCSJones.FiddlerCertProvider.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

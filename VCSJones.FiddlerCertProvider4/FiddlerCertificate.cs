@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using Fiddler;
 using VCSJones.FiddlerCertGen;
 using System.Windows.Forms;
+using VCSJones.FiddlerCertProvider;
 
 namespace VCSJones.FiddlerCertProvider4
 {

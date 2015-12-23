@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace VCSJones.FiddlerCertProvider4
+namespace VCSJones.FiddlerCertProvider
 {
 
     internal static class NativeMethods

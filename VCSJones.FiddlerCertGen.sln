@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCSJones.FiddlerCertGen", "VCSJones.FiddlerCertGen\VCSJones.FiddlerCertGen.csproj", "{E7D637A4-AA2B-4F0A-9B35-A85F3C782DA2}"
 EndProject
@@ -9,7 +9,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCSJones.FiddlerCertProvide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VCSJones.FiddlerCertProvider2", "VCSJones.FiddlerCertProvider2\VCSJones.FiddlerCertProvider2.csproj", "{1BDF2401-22CE-4F5E-BFAF-B1C18E3990C1}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "VCSJones.FiddlerCertProvider", "VCSJones.FiddlerCertProvider\VCSJones.FiddlerCertProvider.shproj", "{D9BD7E1E-1860-4091-93DC-546FAE3E7F20}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		VCSJones.FiddlerCertProvider\VCSJones.FiddlerCertProvider.projitems*{1bdf2401-22ce-4f5e-bfaf-b1c18e3990c1}*SharedItemsImports = 4
+		VCSJones.FiddlerCertProvider\VCSJones.FiddlerCertProvider.projitems*{d9bd7e1e-1860-4091-93dc-546fae3e7f20}*SharedItemsImports = 13
+		VCSJones.FiddlerCertProvider\VCSJones.FiddlerCertProvider.projitems*{398725fa-8ea8-4dd8-945c-99819655b8be}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

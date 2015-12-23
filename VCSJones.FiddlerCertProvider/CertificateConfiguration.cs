@@ -1,6 +1,6 @@
 ﻿using VCSJones.FiddlerCertGen;
 
-namespace VCSJones.FiddlerCertProvider2
+namespace VCSJones.FiddlerCertProvider
 {
     public static class CertificateConfiguration
     {
