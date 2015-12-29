@@ -11,5 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CertificateConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CryptUI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FiddlerCertificateBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PolicyConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringPrompt.cs" />
   </ItemGroup>
 </Project>

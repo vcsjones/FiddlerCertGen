@@ -78,7 +78,7 @@ namespace VCSJones.FiddlerCertGen
             return list;
         }
 
-        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, IPAddress[] ipAddresses = null, HashAlgorithm? signatureAlgorithm = null, DateTime? notBefore = null, DateTime? notAfter = null)
+        public unsafe X509Certificate2 GenerateCertificate(X509Certificate2 issuingCertificate, PrivateKey privateKey, X500DistinguishedName dn, string[] dnsNames, IPAddress[] ipAddresses = null, HashAlgorithm? signatureAlgorithm = null, DateTime? notBefore = null, DateTime? notAfter = null, List<X509Policy> policies = null)
         {
             if (!issuingCertificate.HasPrivateKey)
             {
@@ -124,6 +124,10 @@ namespace VCSJones.FiddlerCertGen
                                     extensions.Add(new X509KeyUsageExtension(usage, true));
                                     extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection {new Oid(OIDs.EKU_SERVER)}, false));
                                     extensions.Add(new X509SubjectAlternativeNameExtension(DnsAltNamesFromArray(dnsNames, ipAddresses ?? new IPAddress[0]), false));
+                                    if (policies?.Count > 0)
+                                    {
+                                        extensions.Add(new X509PoliciesExtension(policies, false));
+                                    }
                                     using (var sha1 = new SHA1CryptoServiceProvider())
                                     {
                                         var issuingKeyId = sha1.ComputeHash(signingPublicKey.Key);
@@ -181,7 +185,7 @@ namespace VCSJones.FiddlerCertGen
             }
         }
 
-        public unsafe X509Certificate2 GenerateCertificateAuthority(PrivateKey privateKey, X500DistinguishedName dn, HashAlgorithm signatureAlgorithm, DateTime? notBefore = null, DateTime? notAfter = null)
+        public unsafe X509Certificate2 GenerateCertificateAuthority(PrivateKey privateKey, X500DistinguishedName dn, HashAlgorithm signatureAlgorithm, DateTime? notBefore = null, DateTime? notAfter = null, List<X509Policy> policies = null)
         {
             {
                 fixed (byte* dnPtr = dn.RawData)
@@ -202,6 +206,10 @@ namespace VCSJones.FiddlerCertGen
                             extensions.Add(new X509BasicConstraintsExtension(true, true, 1, true));
                             extensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.CrlSign | X509KeyUsageFlags.KeyCertSign, true));
                             extensions.Add(new X509EnhancedKeyUsageExtension(new OidCollection { new Oid(OIDs.EKU_SERVER) }, false));
+                            if (policies?.Count > 0)
+                            {
+                                extensions.Add(new X509PoliciesExtension(policies, false));
+                            }
                             using (var publicKey = privateKey.ToPublicKey())
                             {
                                 using (var sha1 = new SHA1CryptoServiceProvider())

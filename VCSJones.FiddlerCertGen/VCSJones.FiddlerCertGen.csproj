@@ -45,6 +45,7 @@
     <Compile Include="FileTimeHelper.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="HashAlgorithm.cs" />
+    <Compile Include="IA5StringEncoding.cs" />
     <Compile Include="Interop\AcquirePrivateKeyFlags.cs" />
     <Compile Include="Interop\AdvApi32.cs" />
     <Compile Include="Interop\ALG_ID.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Interop\NCryptPropertyWriter.cs" />
     <Compile Include="Interop\NCryptStorageProvider.cs" />
     <Compile Include="Interop\SelfSignFlags.cs" />
+    <Compile Include="Interop\CERT_POLICIES_INFO.cs" />
     <Compile Include="KeyProviderBase.cs" />
     <Compile Include="KeyProviders.cs" />
     <Compile Include="KeyUsage.cs" />
@@ -96,9 +98,13 @@
     <Compile Include="ProviderType.cs" />
     <Compile Include="PublicKeyInfo.cs" />
     <Compile Include="SYSTEMTIME.cs" />
+    <Compile Include="IA5StringOrByteArray.cs" />
     <Compile Include="X509AlternativeName.cs" />
     <Compile Include="X509AlternativeNameType.cs" />
     <Compile Include="X509AuthorityKeyIdentifierExtension.cs" />
+    <Compile Include="X509PoliciesExtension.cs" />
+    <Compile Include="X509Policy.cs" />
+    <Compile Include="X509PolicyQualifier.cs" />
     <Compile Include="X509SubjectAlternativeNameExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

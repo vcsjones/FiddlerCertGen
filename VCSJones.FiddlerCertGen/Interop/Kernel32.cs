@@ -36,6 +36,13 @@ namespace VCSJones.FiddlerCertGen.Interop
             (
                 [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr hMem
             );
+
+        [return: MarshalAs(UnmanagedType.I4)]
+        [method: DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int memcmp(
+            [param: In] byte[] b1,
+            [param: In] byte[] b2,
+            [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr count);
     }
 
     internal static class NCrypt

@@ -38,6 +38,18 @@ namespace VCSJones.FiddlerCertGen.Interop
             (
             [param: In, MarshalAs(UnmanagedType.U4)] EncodingType dwCertEncodingType,
             [param: In, MarshalAs(UnmanagedType.LPStr)] string lpszStructType,
+            [param: In, MarshalAs(UnmanagedType.Struct)] ref CERT_POLICIES_INFO pvStructInfo,
+            [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags,
+            [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pEncodePara,
+            [param: Out] out LocalBufferSafeHandle pvEncoded,
+            [param: In, Out, MarshalAs(UnmanagedType.U4)] ref uint pcbEncoded
+            );
+
+        [method: DllImport(CRYPT32, CallingConvention = CallingConvention.Winapi, EntryPoint = "CryptEncodeObjectEx", SetLastError = true)]
+        public static extern bool CryptEncodeObjectEx
+            (
+            [param: In, MarshalAs(UnmanagedType.U4)] EncodingType dwCertEncodingType,
+            [param: In, MarshalAs(UnmanagedType.LPStr)] string lpszStructType,
             [param: In, MarshalAs(UnmanagedType.Struct)] ref CERT_AUTHORITY_KEY_ID2_INFO pvStructInfo,
             [param: In, MarshalAs(UnmanagedType.U4)] uint dwFlags,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pEncodePara,

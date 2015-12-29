@@ -8,14 +8,14 @@ namespace VCSJones.FiddlerCertProvider4
 {
     public partial class ConfigurationDialog : Form
     {
-        private readonly FiddlerCertificate _certificateProvider;
+        private readonly FiddlerCertificateBase _certificateProvider;
 
         public ConfigurationDialog()
         {
             InitializeComponent();
         }
 
-        public ConfigurationDialog(FiddlerCertificate certificateProvider) : this()
+        public ConfigurationDialog(FiddlerCertificateBase certificateProvider) : this()
         {
             _certificateProvider = certificateProvider;
         }
@@ -163,6 +163,23 @@ namespace VCSJones.FiddlerCertProvider4
         private void cancelButton_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void rootPoliciesButton_Click(object sender, EventArgs e)
+        {
+            using (var policyDialog = new PoliciesDialog())
+            {
+                policyDialog.ShowDialog(this);
+            }
+        }
+
+        private void eePoliciesButton_Click(object sender, EventArgs e)
+        {
+
+            using (var policyDialog = new PoliciesDialog())
+            {
+                policyDialog.ShowDialog(this);
+            }
         }
     }
 }

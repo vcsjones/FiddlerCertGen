@@ -45,9 +45,9 @@
             this.label5 = new System.Windows.Forms.Label();
             this.helpProvider = new System.Windows.Forms.HelpProvider();
             this.eeHashAlgorithm = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.rootPoliciesButton = new System.Windows.Forms.Button();
             this.eePoliciesButton = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.keySize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.eeKeySize)).BeginInit();
             this.SuspendLayout();
@@ -70,7 +70,7 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.helpProvider.SetHelpString(this.saveButton, "");
-            this.saveButton.Location = new System.Drawing.Point(246, 227);
+            this.saveButton.Location = new System.Drawing.Point(244, 227);
             this.saveButton.Name = "saveButton";
             this.helpProvider.SetShowHelp(this.saveButton, false);
             this.saveButton.Size = new System.Drawing.Size(75, 23);
@@ -83,7 +83,7 @@
             // 
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(327, 227);
+            this.cancelButton.Location = new System.Drawing.Point(325, 227);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 2;
@@ -260,16 +260,6 @@
             this.eeHashAlgorithm.Size = new System.Drawing.Size(188, 21);
             this.eeHashAlgorithm.TabIndex = 15;
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(14, 174);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(179, 13);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "End Entity Certificate Hash Algorithm";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
             // rootPoliciesButton
             // 
             this.helpProvider.SetHelpString(this.rootPoliciesButton, "Attach or remove certificate policies to the root certificate.");
@@ -280,6 +270,7 @@
             this.rootPoliciesButton.TabIndex = 16;
             this.rootPoliciesButton.Text = "&Policies...";
             this.rootPoliciesButton.UseVisualStyleBackColor = true;
+            this.rootPoliciesButton.Click += new System.EventHandler(this.rootPoliciesButton_Click);
             // 
             // eePoliciesButton
             // 
@@ -291,6 +282,17 @@
             this.eePoliciesButton.TabIndex = 17;
             this.eePoliciesButton.Text = "P&olicies...";
             this.eePoliciesButton.UseVisualStyleBackColor = true;
+            this.eePoliciesButton.Click += new System.EventHandler(this.eePoliciesButton_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(14, 174);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(179, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "End Entity Certificate Hash Algorithm";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // ConfigurationDialog
             // 
