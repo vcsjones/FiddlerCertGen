@@ -58,8 +58,13 @@ namespace VCSJones.FiddlerCertProvider
                 Controls.Add(_textInput);
                 AcceptButton = okButton;
                 CancelButton = cancelButton;
-
                 Height = okButton.Bottom + titleHeight + 5 + SystemInformation.BorderSize.Height*2;
+            }
+
+            protected override void OnShown(EventArgs e)
+            {
+                base.OnShown(e);
+                _textInput.Focus();
             }
 
             protected override void OnPaint(PaintEventArgs e)

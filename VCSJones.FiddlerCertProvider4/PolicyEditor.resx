@@ -120,16 +120,13 @@
   <metadata name="helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="rootAlgorithm.HelpString" xml:space="preserve">
-    <value>The algorithm of the key for the root certificate, or the certificate that will be used to sign the end entity certificates. ECDSA is fairly new and may not be compatible with older browsers, however is gaining popularity. If your operating system does not support it, it will not appear as an option.</value>
-  </data>
-  <data name="keySize.HelpString" xml:space="preserve">
-    <value>The size of the key for the root certificate, or the certificate that will be used to sign end entity certificates. For ECDSA, the algorithm itself determines the size of the key. For RSA, the recommended value is 4096.</value>
-  </data>
-  <data name="eeKeySize.HelpString" xml:space="preserve">
-    <value>The size of the key for the end enitity certificate, or the certificate that will be used for the web site. For ECDSA, the algorithm itself determines the size of the key. For RSA, the recommended value is 2048.</value>
-  </data>
-  <data name="eeAlgorithm.HelpString" xml:space="preserve">
-    <value>The algorithm of the key for the end enitity certificate, or the certificate that will be used for the web site. ECDSA is fairly new and may not be compatible with older browsers, however is gaining popularity. If your operating system does not support it, it will not appear as an option.</value>
-  </data>
+  <metadata name="helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="helpProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

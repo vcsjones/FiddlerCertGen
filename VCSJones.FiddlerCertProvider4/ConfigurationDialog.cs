@@ -165,20 +165,11 @@ namespace VCSJones.FiddlerCertProvider4
             Close();
         }
 
-        private void rootPoliciesButton_Click(object sender, EventArgs e)
-        {
-            using (var policyDialog = new PoliciesDialog())
-            {
-                policyDialog.ShowDialog(this);
-            }
-        }
-
         private void eePoliciesButton_Click(object sender, EventArgs e)
         {
-
-            using (var policyDialog = new PoliciesDialog())
+            using (var policyEditor = new PolicyEditor())
             {
-                policyDialog.ShowDialog(this);
+                policyEditor.ShowDialog(this);
             }
         }
     }

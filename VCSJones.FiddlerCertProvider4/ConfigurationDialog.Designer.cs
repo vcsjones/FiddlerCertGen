@@ -45,7 +45,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.helpProvider = new System.Windows.Forms.HelpProvider();
             this.eeHashAlgorithm = new System.Windows.Forms.ComboBox();
-            this.rootPoliciesButton = new System.Windows.Forms.Button();
             this.eePoliciesButton = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.keySize)).BeginInit();
@@ -260,18 +259,6 @@
             this.eeHashAlgorithm.Size = new System.Drawing.Size(188, 21);
             this.eeHashAlgorithm.TabIndex = 15;
             // 
-            // rootPoliciesButton
-            // 
-            this.helpProvider.SetHelpString(this.rootPoliciesButton, "Attach or remove certificate policies to the root certificate.");
-            this.rootPoliciesButton.Location = new System.Drawing.Point(327, 86);
-            this.rootPoliciesButton.Name = "rootPoliciesButton";
-            this.helpProvider.SetShowHelp(this.rootPoliciesButton, true);
-            this.rootPoliciesButton.Size = new System.Drawing.Size(75, 23);
-            this.rootPoliciesButton.TabIndex = 16;
-            this.rootPoliciesButton.Text = "&Policies...";
-            this.rootPoliciesButton.UseVisualStyleBackColor = true;
-            this.rootPoliciesButton.Click += new System.EventHandler(this.rootPoliciesButton_Click);
-            // 
             // eePoliciesButton
             // 
             this.helpProvider.SetHelpString(this.eePoliciesButton, "Attach or remove certificate policies to generated end-entity certificates.");
@@ -302,7 +289,6 @@
             this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(414, 263);
             this.Controls.Add(this.eePoliciesButton);
-            this.Controls.Add(this.rootPoliciesButton);
             this.Controls.Add(this.eeHashAlgorithm);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -354,7 +340,6 @@
         private System.Windows.Forms.HelpProvider helpProvider;
         private System.Windows.Forms.ComboBox eeHashAlgorithm;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button rootPoliciesButton;
         private System.Windows.Forms.Button eePoliciesButton;
     }
 }

@@ -1,13 +1,11 @@
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace VCSJones.FiddlerCertGen
 {
     public static class IA5StringEncoding
     {
-        internal const byte IDENTIFIER = 0x16;
+        internal const byte IDENTIFIER = 0x16, MULTI_BYTE_MASK = 0x80;
         public static byte[] Encode(string str)
         {
             var length = EncodeLengthTo7Bit(str.Length);
@@ -26,10 +24,10 @@ namespace VCSJones.FiddlerCertGen
                 throw new ArgumentException("Data does not appear to be a string.", nameof(data));
             }
             var length = data[1];
-            var multiByteLength = (length & 0x80) == 0x80;
+            var multiByteLength = (length & MULTI_BYTE_MASK) == MULTI_BYTE_MASK;
             if (multiByteLength)
             {
-                var byteCount = length & ~0x80;
+                var byteCount = length & ~MULTI_BYTE_MASK;
                 Console.WriteLine(byteCount);
                 var lengthBuffer = new byte[byteCount];
                 Buffer.BlockCopy(data, 2, lengthBuffer, 0, byteCount);
@@ -46,7 +44,7 @@ namespace VCSJones.FiddlerCertGen
 
         private static byte[] EncodeLengthTo7Bit(int length)
         {
-            if (length <= 0x7F)
+            if (length < MULTI_BYTE_MASK)
             {
                 return new[] {(byte) length};
             }
@@ -57,7 +55,7 @@ namespace VCSJones.FiddlerCertGen
                 length >>= 8;
             }
             var result = new byte[1 + octets.Count];
-            result[0] = (byte) (0x80 | octets.Count);
+            result[0] = (byte) (MULTI_BYTE_MASK | octets.Count);
             for (var i = 0; i < octets.Count; i++)
             {
                 result[i + 1] = octets[i];

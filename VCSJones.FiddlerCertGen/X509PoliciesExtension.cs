@@ -21,6 +21,7 @@ namespace VCSJones.FiddlerCertGen
             var qualifierSize = Marshal.SizeOf(typeof (CERT_POLICY_QUALIFIER_INFO));
             var policiesBuffer = Marshal.AllocHGlobal(policySize*policies.Count);
             var freeValues = new List<IntPtr> {policiesBuffer};
+            var disposePool = new List<IDisposable>();
             try
             {
                 for (int index = 0, offset = 0; index < policies.Count; index++, offset += policySize)
@@ -41,9 +42,9 @@ namespace VCSJones.FiddlerCertGen
                             var qualifier = new CRYPT_OBJID_BLOB();
                             int size;
                             var nativeQualifier = currentQualifier.Qualifier.ToNative(out size);
-                            freeValues.Add(nativeQualifier);
+                            disposePool.Add(nativeQualifier);
                             qualifier.cbData = (uint) size;
-                            qualifier.pbData = nativeQualifier;
+                            qualifier.pbData = nativeQualifier.DangerousGetHandle();
                             qualifierInfo.Qualifier = qualifier;
                             Marshal.StructureToPtr(qualifierInfo, IntPtrArithmetic.Add(qualifierBuffer, qualifierOffset), false);
                         }
@@ -68,6 +69,7 @@ namespace VCSJones.FiddlerCertGen
             finally
             {
                 freeValues.ForEach(Marshal.FreeHGlobal);
+                disposePool.ForEach(m => m.Dispose());
             }
         }
     }

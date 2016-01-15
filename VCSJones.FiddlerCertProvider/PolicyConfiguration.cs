@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace VCSJones.FiddlerCertProvider
 {
     public class PolicyConfiguration
     {
-
+        private static readonly Regex _oidValidator = new Regex(@"^(\d+\.)+\d+$", RegexOptions.Compiled);
         private readonly XmlDocument _configDocument;
         private static readonly string _configurationPath = Path.Combine(Fiddler.CONFIG.GetPath("Root"), "certPolicies.xml");
         public static PolicyConfiguration Instance { get; } = new PolicyConfiguration(_configurationPath);
@@ -71,26 +73,57 @@ namespace VCSJones.FiddlerCertProvider
 
         public bool PolicyExists(string oid)
         {
-            var nodes = _configDocument.SelectNodes("/policies/policy/oid");
+            ValidateOidInput(oid);
+            var nodes = _configDocument.SelectNodes($"/policies/policy/oid[text()=\"{oid}\"]");
+            return nodes?.Count > 0;
+        }
+
+        public void RemovePolicy(string oid)
+        {
+            ValidateOidInput(oid);
+            var nodes = _configDocument.SelectNodes($"/policies/policy[oid/text()=\"{oid}\"]");
             if (nodes == null)
             {
-                return false;
+                return;
             }
             foreach (XmlElement element in nodes)
             {
-                if (element.InnerText.Trim() == oid)
-                {
-                    return true;
-                }
+                element.ParentNode?.RemoveChild(element);
             }
-            return false;
+            _configDocument.Save(_configurationPath);
         }
-    }
 
-    public class PolicyModel
-    {
-        public string Oid { get; set; }
-        public IList<PolicyQualifierModel> Qualifiers { get; set; } = new List<PolicyQualifierModel>();
+        // ReSharper disable once UnusedParameter.Local
+        private static void ValidateOidInput(string oid)
+        {
+            if (!_oidValidator.IsMatch(oid))
+            {
+                throw new InvalidOperationException("OID input is invalid.");
+            }
+        }
+
+        public IList<PolicyModel> GetAllPolicies()
+        {
+            var nodes = _configDocument.SelectNodes("/policies/policy");
+            var models = new List<PolicyModel>();
+            if (nodes == null)
+            {
+                return models;
+            }
+            foreach (XmlElement node in nodes)
+            {
+                var oid = node.SelectSingleNode("oid");
+                if (oid == null)
+                {
+                    continue;
+                }
+                models.Add(new PolicyModel
+                {
+                    Oid = oid.InnerText
+                });
+            }
+            return models;
+        }
     }
 
     public class PolicyQualifierModel

@@ -68,21 +68,15 @@ namespace VCSJones.FiddlerCertProvider
         }
         public List<X509Policy> GetEEPolicies()
         {
-            return new List<X509Policy>
+            var list = new List<X509Policy>();
+            foreach (var model in PolicyConfiguration.Instance.GetAllPolicies())
             {
-                new X509Policy {PolicyIdentifier = "2.23.140.1.2.99"},
-                new X509Policy
+                list.Add(new X509Policy
                 {
-                    PolicyIdentifier = "1.3.6.1.4.1.6449.1.2.2.7", PolicyQualifier = new List<X509PolicyQualifier>
-                    {
-                        new X509PolicyQualifier
-                        {
-                            PolicyQualifierId = "1.3.6.1.5.5.7.2.1",
-                            Qualifier = "http://www.telerik.com/blogs/faq---certificates-in-fiddler"
-                        },
-                    }
-                }
-            };
+                    PolicyIdentifier = model.Oid
+                });
+            }
+            return list;
         }
 
         public abstract X509Certificate2 GetCertificateForHostPlain(string sHostname);

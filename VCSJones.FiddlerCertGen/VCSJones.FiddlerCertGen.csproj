@@ -45,6 +45,7 @@
     <Compile Include="FileTimeHelper.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="HashAlgorithm.cs" />
+    <Compile Include="HGlobalHandle.cs" />
     <Compile Include="IA5StringEncoding.cs" />
     <Compile Include="Interop\AcquirePrivateKeyFlags.cs" />
     <Compile Include="Interop\AdvApi32.cs" />

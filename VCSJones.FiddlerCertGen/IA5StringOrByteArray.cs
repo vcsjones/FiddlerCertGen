@@ -4,7 +4,7 @@ using VCSJones.FiddlerCertGen.Interop;
 
 namespace VCSJones.FiddlerCertGen
 {
-    public class IA5StringOrByteArray : IComparable<IA5StringOrByteArray>
+    public class IA5StringOrByteArray : IComparable<IA5StringOrByteArray>, IEquatable<IA5StringOrByteArray>
     {
         private readonly byte[] _byteValue;
 
@@ -21,6 +21,7 @@ namespace VCSJones.FiddlerCertGen
         {
             _byteValue = value;
         }
+
         private IA5StringOrByteArray(string value)
         {
             _byteValue = IA5StringEncoding.Encode(value);
@@ -34,6 +35,11 @@ namespace VCSJones.FiddlerCertGen
         public static implicit operator IA5StringOrByteArray(string str)
         {
             return new IA5StringOrByteArray(str);
+        }
+
+        public bool Equals(IA5StringOrByteArray other)
+        {
+            return CompareTo(other) == 0;
         }
 
         public override string ToString() => BitConverter.ToString(_byteValue);
@@ -52,12 +58,21 @@ namespace VCSJones.FiddlerCertGen
             }
         }
 
-        public IntPtr ToNative(out int size)
+        public override int GetHashCode() => _byteValue.GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is IA5StringOrByteArray)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return Equals((IA5StringOrByteArray)obj);
+        }
+
+        public HGlobalHandle ToNative(out int size)
         {
             size = _byteValue.Length;
-            var alloc = Marshal.AllocHGlobal(_byteValue.Length);
-            Marshal.Copy(_byteValue, 0, alloc, _byteValue.Length);
-            return alloc;
+            var handle = HGlobalHandle.Alloc(size);
+            Marshal.Copy(_byteValue, 0, handle.DangerousGetHandle(), _byteValue.Length);
+            return handle;
         }
 
         public byte[] ToByteArray()
