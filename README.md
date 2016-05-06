@@ -16,19 +16,10 @@ The signature algorithm default is SHA256, SHA384 and SHA1 are also supported. S
 
 The algorithm depends on the operating system. ECDSA will be used for Windows Vista or greater, RSA will be used for Windows XP.
 
-
-#How does it work?
-There are two libraries, the VCSJones.FiddlerCertGen project, which is a .NET 2.0 project. This does the bulk of the certificate generation but knows nothing about Fiddler, nor does it have to be used in Fiddler. It can be used as a general purpose test certificate library.
-
-`VCSJones.FiddlerCertProvider4` and `VCSJones.FidderCertProvider2` use the certificate generation library and actually implements the Fiddler interface for generating certificates. This project targets the .NET 4.0 build of Fiddler. Use the one appropriate for your version of Fiddler.
-
 #How do I use it?
-Take the output assemblies `VCSJones.FidderCertGen` and one of the `CertProvider` assemblies and place it in `%HOMEPATH%\Documents\Fidder2\Scripts` and restart Fiddler.
 
-The certificate generation can be configured by navigating to Tools, Fiddler Options, HTTPS, then clicking the blue link to configure the certificate generator.
+[Download the latest installer](https://github.com/vcsjones/FiddlerCertGen/releases/latest) for your version of Fiddler. Most people use Fiddler 4, so if you aren't sure, use that version of the installer. Once installed,
+restart Fiddler.
 
-Changing the End Entity certificate configures has an immediate result, however any domains where a certificate was previously generated will use the cached certificates. Restarting Fiddler clears the certificate cache.
-
-Changing the Root Certificate configuration requires disabling decryption of HTTPS traffic, selecting "Remove Interception Certificates" and re-enabling decryption of HTTPS traffic. Newer versions of Fiddler should use "Reset Certificates" to accomplish this.
-
-For information about each configuration option, use the built-in help.
+You need to reset your root certificate for Fiddler after installing. To do that, go to "Tools", "Fiddler Options...". Then on the HTTPS tab, click "Actions" then "Reset All Certificates". This will remove the existing
+Fiddler root certificate and install one from Fiddler Certificate Generator.
